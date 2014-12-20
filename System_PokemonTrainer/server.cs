@@ -1,0 +1,1 @@
+exec("./script/serverMain.cs");
