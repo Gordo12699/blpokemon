@@ -1,0 +1,140 @@
+{
+    "Types": {
+        "BUG": {
+            "Effective": "GRASS PSYCHIC DARK", 
+            "Immune": "", 
+            "Ineffective": "FIGHT FLYING POISON GHOST STEEL FIRE", 
+            "Nullified": "", 
+            "Resistant": "FIGHT GROUND GRASS", 
+            "Weak": "FLYING ROCK FIRE"
+        }, 
+        "DARK": {
+            "Effective": "GHOST PSYCHIC", 
+            "Immune": "PSYCHIC", 
+            "Ineffective": "FIGHT STEEL DARK", 
+            "Nullified": "", 
+            "Resistant": "GHOST DARK", 
+            "Weak": "FIGHT BUG"
+        }, 
+        "DRAGON": {
+            "Effective": "DRAGON", 
+            "Immune": "", 
+            "Ineffective": "STEEL", 
+            "Nullified": "", 
+            "Resistant": "FIRE WATER GRASS ELECTRIC", 
+            "Weak": "ICE DRAGON"
+        }, 
+        "ELECTRIC": {
+            "Effective": "FLYING WATER", 
+            "Immune": "", 
+            "Ineffective": "GRASS ELECTRIC", 
+            "Nullified": "GROUND", 
+            "Resistant": "FLYING STEEL ELECTRIC", 
+            "Weak": "GROUND"
+        }, 
+        "FIGHT": {
+            "Effective": "NORMAL ROCK STEEL ICE DARK", 
+            "Immune": "", 
+            "Ineffective": "FLYING POISON BUG", 
+            "Nullified": "GHOST", 
+            "Resistant": "ROCK BUG DARK", 
+            "Weak": "FLYING PSYCHIC"
+        }, 
+        "FIRE": {
+            "Effective": "BUG STEEL GRASS ICE", 
+            "Immune": "", 
+            "Ineffective": "ROCK FIRE WATER DRAGON", 
+            "Nullified": "", 
+            "Resistant": "BUG STEEL FIRE GRASS ICE", 
+            "Weak": "GROUND ROCK WATER"
+        }, 
+        "FLYING": {
+            "Effective": "FIGHT BUG GRASS", 
+            "Immune": "GROUND", 
+            "Ineffective": "ROCK STEEL ELECTRIC", 
+            "Nullified": "", 
+            "Resistant": "FIGHT BUG GRASS", 
+            "Weak": "ROCK ELECTRIC ICE"
+        }, 
+        "GHOST": {
+            "Effective": "GHOST PSYCHIC", 
+            "Immune": "NORMAL FIGHT", 
+            "Ineffective": "STEEL DARK", 
+            "Nullified": "NORMAL", 
+            "Resistant": "POISON BUG", 
+            "Weak": "GHOST DARK"
+        }, 
+        "GRASS": {
+            "Effective": "GROUND ROCK WATER", 
+            "Immune": "", 
+            "Ineffective": "FLYING POISON BUG STEEL FIRE GRASS DRAGON", 
+            "Nullified": "", 
+            "Resistant": "GROUND WATER GRASS ELECTRIC", 
+            "Weak": "FLYING POISON BUG FIRE ICE"
+        }, 
+        "GROUND": {
+            "Effective": "POISON ROCK STEEL FIRE ELECTRIC", 
+            "Immune": "ELECTRIC", 
+            "Ineffective": "BUG GRASS", 
+            "Nullified": "FLYING", 
+            "Resistant": "POISON ROCK", 
+            "Weak": "WATER GRASS ICE"
+        }, 
+        "ICE": {
+            "Effective": "FLYING GROUND GRASS DRAGON", 
+            "Immune": "", 
+            "Ineffective": "STEEL FIRE WATER ICE", 
+            "Nullified": "", 
+            "Resistant": "ICE", 
+            "Weak": "FIGHT ROCK STEEL FIRE"
+        }, 
+        "NORMAL": {
+            "Effective": "", 
+            "Immune": "GHOST", 
+            "Ineffective": "ROCK STEEL", 
+            "Nullified": "GHOST", 
+            "Resistant": "", 
+            "Weak": "FIGHT"
+        }, 
+        "POISON": {
+            "Effective": "GRASS", 
+            "Immune": "", 
+            "Ineffective": "POISON GROUND ROCK GHOST", 
+            "Nullified": "STEEL", 
+            "Resistant": "FIGHT POISON BUG GRASS", 
+            "Weak": "GROUND PSYCHIC"
+        }, 
+        "PSYCHIC": {
+            "Effective": "FIGHT POISON", 
+            "Immune": "", 
+            "Ineffective": "STEEL PSYCHIC", 
+            "Nullified": "DARK", 
+            "Resistant": "FIGHT PSYCHIC", 
+            "Weak": "BUG GHOST DARK"
+        }, 
+        "ROCK": {
+            "Effective": "FLYING BUG FIRE ICE", 
+            "Immune": "", 
+            "Ineffective": "FIGHT GROUND STEEL", 
+            "Nullified": "", 
+            "Resistant": "NORMAL FLYING POISON FIRE", 
+            "Weak": "FIGHT GROUND STEEL WATER GRASS"
+        }, 
+        "STEEL": {
+            "Effective": "ROCK ICE", 
+            "Immune": "POISON", 
+            "Ineffective": "STEEL FIRE WATER ELECTRIC", 
+            "Nullified": "", 
+            "Resistant": "NORMAL FLYING ROCK BUG GHOST STEEL GRASS PSYCHIC ICE DRAGON DARK", 
+            "Weak": "FIGHT GROUND FIRE"
+        }, 
+        "WATER": {
+            "Effective": "GROUND ROCK FIRE", 
+            "Immune": "", 
+            "Ineffective": "WATER GRASS DRAGON", 
+            "Nullified": "", 
+            "Resistant": "STEEL FIRE WATER ICE", 
+            "Weak": "GRASS ELECTRIC"
+        }
+    }
+}
