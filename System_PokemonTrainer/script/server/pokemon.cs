@@ -38,7 +38,7 @@ $Pokemon::IV3 = "Speed";
 $Pokemon::IV4 = "SpAtk";
 $Pokemon::IV5 = "SpDef";
 
-function Pokemon_New(%data, %trainer)
+function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 {
 	if(%data.class !$= "PokemonData")
 		return -1;
@@ -49,9 +49,23 @@ function Pokemon_New(%data, %trainer)
 				superClass = "Pokemon";
 				data = %data;
 
-				trainer = %trainer;
-				owner = -1;
-				moves = -1;
+				trainerID = (%trainerBL_ID !$= "" ? solveTrainerID(%trainerBL_ID) : "");
+				owner = (%owner >= 0 ? -1 : %owner + 0);
+				nickname = (%name $= "" ? %data.name : %name);
+
+				move0 = -1;
+				move1 = -1;
+				move2 = -1;
+				move3 = -1;
+				pp0 = -1;
+				pp1 = -1;
+				pp2 = -1;
+				pp3 = -1;
+				ppMax0 = -1;
+				ppMax1 = -1;
+				ppMax2 = -1;
+				ppMax3 = -1;
+
 				item = -1;
 
 				statLevel = 1;
@@ -62,6 +76,7 @@ function Pokemon_New(%data, %trainer)
 				statSpAtk = -1;
 				statSpDef = -1;
 				statSpeed = -1;
+				statEff = -1;
 
 				ivAtk = 0;
 				ivDef = 0;
@@ -84,6 +99,8 @@ function Pokemon_New(%data, %trainer)
 				nature = -1;
 				shiny = false;
 			};
+	MissionCleanup.add(%this);
+
 	%this.solvePersonality();
 	%this.generateIVs();
 	%this.setStatsForLevel(1);
@@ -112,10 +129,10 @@ function Pokemon::solvePersonality(%this)
 
 	%this.nature = %this.personality % 25;
 
-	if(!isObject(%this.trainer))
+	if(%this.trainerID $= "")
 		%tID = $Pokemon::GenericTrainerID;
 	else
-		%tID = %this.trainer.trainerID;
+		%tID = %this.trainerID;
 
 	%p1 = mFloor(%this.personality / 32768);
 	%p2 = %this.personality % 32768;
@@ -176,4 +193,153 @@ function Pokemon::setStatsForLevel(%this, %level)
 	}
 
 	%this.statLevel = %level;
+}
+
+function Pokemon::levelUp(%this)
+{
+	if((%lvl = %this.getStat("Level")) >= 100)
+		return;
+	if(%lvl < 1)
+		%lvl = 1;
+
+	%this.setStatsForLevel(%lvl + 1);
+}
+
+function Pokemon::getStat(%this, %stat)
+{
+	return %this.stat[%stat];
+}
+
+function Pokemon::getHP(%this)
+{
+	return %this.getStat("HP");
+}
+
+function Pokemon::getHPPerc(%this)
+{
+	return %this.getStat("HP") / %this.getStat("MaxHP");
+}
+
+function Pokemon::setHP(%this, %val)
+{
+	%oval = %this.getStat("HP");
+	if(%val < 0)
+		%val = 0;
+	else if(%val > %v = %this.getStat("MaxHP"))
+		%val = %v;
+
+	PokeDebug("+Pokemon " @ %this @ " set " @ %oval @ "-(" @ %val-%oval @ ")->" @ %val, %this);
+
+	return %this.statHP = mFloor(%val);
+}
+
+function Pokemon::setHPPerc(%this, %val)
+{
+	if(%val > 1)
+		%val = 1;
+	else if(%val < 0)
+		%val = 0;
+
+	return %this.setHP(mFloor(%this.getStat("MaxHP") * %val));
+}
+
+function Pokemon::modHP(%this, %mod)
+{
+	return %this.setHP(mFloor(eval("return %this.statHP" @ %mod @ ";")));
+}
+
+function Pokemon::modHPPerc(%this, %mod)
+{
+	%perc = %this.getHPPerc();
+	%perc = eval("return %perc" @ %mod @ ";");
+
+	if(%perc < 0)
+		%perc = 0;
+	if(%perc > 1)
+		%perc = 1;
+
+	return %this.setHPPerc(%perc);
+}
+
+function Pokemon::setMove(%this, %slot, %move)
+{
+	if(%move.class !$= "PokemonMove")
+		return false;
+
+	%slot = %slot % 4;
+	%this.move[%slot] = %move;
+	%this.pp[%slot] = %move.pp;
+	%this.ppMax[%slot] = %move.pp;
+
+	return true;
+}
+
+function Pokemon::getMove(%this, %slot)
+{
+	%slot = %slot % 4;
+	if(!isObject(%this.move[%slot]))
+		return -1;
+	return %this.move[%slot];
+}
+
+function Pokemon::getPP(%this, %slot)
+{
+	%slot = %slot % 4;
+
+	if(!isObject(%this.move[%slot]))
+		return -1;
+
+	return %this.pp[%slot];
+}
+
+function Pokemon::setPP(%this, %slot, %val)
+{
+	%slot = %slot % 4;
+
+	if(!isObject(%this.move[%slot]))
+		return -1;
+
+	if(%val > %this.ppMax[%slot])
+		%val = %this.ppMax[%slot];
+	else if(%val < 0)
+		%val = 0;
+
+	return %this.pp[%slot] = %val;
+}
+
+function Pokemon::getMaxPP(%this, %slot)
+{
+	%slot = %slot % 4;
+
+	if(!isObject(%this.move[%slot]))
+		return -1;
+
+	return %this.ppMax[%slot];
+}
+
+function Pokemon::applyPPUpLevel(%this, %slot, %val)
+{
+	%val = %val % 4;
+	%slot = %slot % 4;
+
+	if(!isObject(%this.move[%slot]))
+		return -1;
+
+	%this.ppMax[%slot] = %this.move[%slot].getPPLevel(%val);
+
+	return %this.ppMax[%slot];
+}
+
+function Pokemon::removeMove(%this, %slot)
+{
+	%slot = %slot % 4;
+
+	if(!isObject(%this.move[%slot]))
+		return false;
+
+	%this.move[%slot] = -1;
+	%this.pp[%slot] = -1;
+	%this.ppMax[%slot] = -1;
+
+	return true;
 }

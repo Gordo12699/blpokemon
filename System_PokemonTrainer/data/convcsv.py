@@ -34,6 +34,22 @@ def convertMoves(file):
 				}})
 	return output
 
+def convertMoves2(file):
+	output = {'Moves' : {}}
+	with open(file) as csv_file:
+		for row in csv.DictReader(csv_file, delimiter='|'):
+			output['Moves'].update({row['Name']: {
+					'Type': row['Type'],
+					'Class': row['Class'],
+					'Power': row['Power'],
+					'Accuracy': row['Accuracy'],
+					'PP': row['PP'],
+					'Effect': row['Effect'],
+					'Contact': row['Contact'],
+					'Description': row['Description']
+				}})
+	return output
+
 def convertPokemon(file):
 	output = {'Pokemon' : {}}
 	with open(file) as csv_file:
@@ -137,17 +153,17 @@ def convertPokemon2(file):
 			print row['Name']
 	return output
 
-out = {}
-out.update(convertTypes("./types.csv"))
-with open("./GenII-VTypes.json", 'w') as f:
-	json.dump(out, f, sort_keys=True, indent=4)
+# out = {}
+# out.update(convertTypes("./types.csv"))
+# with open("./GenII-VTypes.json", 'w') as f:
+# 	json.dump(out, f, sort_keys=True, indent=4)
+
+# out = {}
+# out.update(convertPokemon2("./gen1revision.csv"))
+# with open("./Gen1Revision.json", 'w') as f:
+# 	json.dump(out, f, sort_keys=True, indent=4)
 
 out = {}
-out.update(convertPokemon2("./gen1revision.csv"))
-with open("./Gen1Revision.json", 'w') as f:
-	json.dump(out, f, sort_keys=True, indent=4)
-
-out = {}
-out.update(convertMoves("./moves.csv"))
-with open("./moves.json", 'w') as f:
+out.update(convertMoves2("./MovesNew.csv"))
+with open("./MovesNew.json", 'w') as f:
 	json.dump(out, f, sort_keys=True, indent=4)

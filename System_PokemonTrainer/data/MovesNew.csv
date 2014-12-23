@@ -1,0 +1,17 @@
+Name|Type|Class|Power|Accuracy|Effect|PP|Description|Contact
+Double-Edge|NORMAL|PHYSICAL|120|1.00|USER RECOIL 0.33|15|A reckless, life-risking tackle. It also damages the user by a fairly large amount, however.|1
+Growl|NORMAL|OTHER|0|1.00|TARGET ATTACK -1|40|The user growls in an endearing way, making the opposing team less wary. The foes' Attack stats are lowered.|0
+Growth|NORMAL|OTHER|0|1.00|USER SPATK +1; USER ATK +1|40|The user's body grows all at once, raising the Attack and Sp. Atk stats.|0
+Leech Seed|GRASS|OTHER|0|0.90|TARGET LEECH 0.0625 1|10|A seed is planted on the target. It steals some HP from the target every turn.|0
+Petal Dance|GRASS|Special|90|1.00|USER REPEAT 2t3 THEN USER CONFUSE|20|The user attacks the target by scattering petals for two to three turns. The user then becomes confused.|1
+Poisonpowder|POISON|OTHER|0|0.75|TARGET POISON|35|A cloud of poisonous dust is scattered on the foe. It may poison the target.|0
+Razor Leaf|GRASS|PHYSICAL|55|0.95|USER CRIT +1|25|Sharp-edged leaves are launched to slash at the opposing team. Critical hits land more easily.|0
+Seed Bomb|GRASS|PHYSICAL|80|1.00||15|The user slams a barrage of hard-shelled seeds down on the target from above.|1
+Sleep Powder|GRASS|OTHER|0|0.75|TARGET SLEEP 1|15|The user scatters a big cloud of sleep-inducing dust around the foe.|0
+Solarbeam|GRASS|SPECIAL|120|1.00|USER DELAY +1 UNLESS SUNNY|10|A two-turn attack. The user gathers light, then blasts a bundled beam on the second turn.|0
+Sweet Scent|NORMAL|OTHER|0|1.00|TARGET EVASION -1|20|A sweet scent that lowers the opposing team's evasiveness.|0
+Synthesis|GRASS|OTHER|0|1.00|USER SYNTHESIS|5|The user restores its own HP. The amount of HP regained varies with the weather.|0
+Tackle|NORMAL|PHYSICAL|35|0.95||35|A physical attack in which the user charges and slams into the target with its whole body.|1
+Take Down|NORMAL|PHYSICAL|90|0.85|USER RECOIL 0.25|20|A reckless, full-body charge attack for slamming into the target. It also damages the user a little.|1
+Vine Whip|GRASS|PHYSICAL|35|1.00||15|The target is struck with slender, whiplike vines to inflict damage.|0
+Worry Seed|GRASS|OTHER|0|1.00|TARGET WORRYSEED|10|A seed that causes worry is planted on the target. It prevents sleep by making its Ability Insomnia.|1

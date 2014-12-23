@@ -6,10 +6,10 @@ function PokemonData_Init()
 	$PokemonData = new ScriptGroup(PokemonDataGroup);
 	MissionCleanup.add(PokemonDataGroup);
 
-	$PokemonData.types = new ScriptGroup(PokemonTypes);
+	// $PokemonData.types = new ScriptGroup(PokemonTypes);
 	$PokemonData.pokemon = new ScriptGroup(PokemonList);
 	$PokemonData.moves = new ScriptGroup(PokemonMoves);
-	$PokemonData.add($PokemonData.types, $PokemonData.pokemon, $PokemonData.moves);
+	$PokemonData.add($PokemonData.pokemon, $PokemonData.moves);
 
 	return PokemonDataGroup;
 }
@@ -174,6 +174,63 @@ function PokemonMoves::newMove(%this, %name, %type, %power, %acc, %contact, %eff
 	$Pokemon::DataMove[%name] = %obj;
 
 	return %obj;
+}
+
+function PokemonMoves::newMove2(%this, %name, %type, %power, %acc, %contact, %eff, %pp, %desc, %class)
+{
+	%objn = "PokemonMove" @ %name;
+	%objn = strReplace(%objn, " ", "_");
+	%objn = strReplace(%objn, "-", "DASH");
+	if(isObject(%objn))
+		%objn.delete();
+
+	%obj = new ScriptObject(%objn)
+			{
+				class = "PokemonMove";
+
+				name = %name;
+				type = %type;
+				power = %power;
+				accuracy = %acc;
+				makesContact = %contact;
+				effect = %eff;
+				pp = getWord(%pp, 0);
+				description = %desc;
+				damClass = %class;
+			};
+	%this.add(%obj);
+	$Pokemon::DataMove[%name] = %obj;
+
+	return %obj;
+}
+
+function PokemonMoves::addFromJSON2(%this, %json)
+{
+	if(!isJSONObject(%json) || %json.getJSONType() !$= "hash")
+		return -1;
+
+	if(%json.getKey(0) $= "Moves")
+		%json = %json.get("Moves");
+
+	%ct = %json.getLength();
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%key = %json.getKey(%i);
+		%obj = %json.get(%key);
+
+		%type = strUpr(%obj.get("Type"));
+		%power = %obj.get("Power");
+		%acc = %obj.get("Accuracy");
+		%contact = %obj.get("Contact");
+		%eff = strReplace(%obj.get("Effect"), ";", "\t");
+		%pp = %obj.get("PP");
+		%desc = %obj.get("Description");
+		%class = %obj.get("Class");
+
+		%this.newMove2(%key, %type, %power, %acc, %contact, %eff, %pp, %desc, %class);
+		%j++;
+	}
+	return %j;
 }
 
 function PokemonMoves::addFromJSON(%this, %json)

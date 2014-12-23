@@ -1,0 +1,164 @@
+{
+    "Moves": {
+        "Double-Edge": {
+            "Accuracy": "1.00", 
+            "Class": "PHYSICAL", 
+            "Contact": "1", 
+            "Description": "A reckless, life-risking tackle. It also damages the user by a fairly large amount, however.", 
+            "Effect": "USER RECOIL 0.33", 
+            "PP": "15", 
+            "Power": "120", 
+            "Type": "NORMAL"
+        }, 
+        "Growl": {
+            "Accuracy": "1.00", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "The user growls in an endearing way, making the opposing team less wary. The foes' Attack stats are lowered.", 
+            "Effect": "TARGET MOD ATK -1", 
+            "PP": "40", 
+            "Power": "0", 
+            "Type": "NORMAL"
+        }, 
+        "Growth": {
+            "Accuracy": "1.00", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "The user's body grows all at once, raising the Attack and Sp. Atk stats.", 
+            "Effect": "USER MOD SPATK +1;USER MOD ATK +1", 
+            "PP": "40", 
+            "Power": "0", 
+            "Type": "NORMAL"
+        }, 
+        "Leech Seed": {
+            "Accuracy": "0.90", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "A seed is planted on the target. It steals some HP from the target every turn.", 
+            "Effect": "TARGET LEECH 0.0625 1", 
+            "PP": "10", 
+            "Power": "0", 
+            "Type": "GRASS"
+        }, 
+        "Petal Dance": {
+            "Accuracy": "1.00", 
+            "Class": "Special", 
+            "Contact": "1", 
+            "Description": "The user attacks the target by scattering petals for two to three turns. The user then becomes confused.", 
+            "Effect": "USER REPEAT 2t3 THEN USER CONFUSE", 
+            "PP": "20", 
+            "Power": "90", 
+            "Type": "GRASS"
+        }, 
+        "Poisonpowder": {
+            "Accuracy": "0.75", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "A cloud of poisonous dust is scattered on the foe. It may poison the target.", 
+            "Effect": "TARGET POISON", 
+            "PP": "35", 
+            "Power": "0", 
+            "Type": "POISON"
+        }, 
+        "Razor Leaf": {
+            "Accuracy": "0.95", 
+            "Class": "PHYSICAL", 
+            "Contact": "0", 
+            "Description": "Sharp-edged leaves are launched to slash at the opposing team. Critical hits land more easily.", 
+            "Effect": "USER CRIT +1", 
+            "PP": "25", 
+            "Power": "55", 
+            "Type": "GRASS"
+        }, 
+        "Seed Bomb": {
+            "Accuracy": "1.00", 
+            "Class": "PHYSICAL", 
+            "Contact": "1", 
+            "Description": "The user slams a barrage of hard-shelled seeds down on the target from above.", 
+            "Effect": "", 
+            "PP": "15", 
+            "Power": "80", 
+            "Type": "GRASS"
+        }, 
+        "Sleep Powder": {
+            "Accuracy": "0.75", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "The user scatters a big cloud of sleep-inducing dust around the foe.", 
+            "Effect": "TARGET SLEEP 1", 
+            "PP": "15", 
+            "Power": "0", 
+            "Type": "GRASS"
+        }, 
+        "Solarbeam": {
+            "Accuracy": "1.00", 
+            "Class": "SPECIAL", 
+            "Contact": "0", 
+            "Description": "A two-turn attack. The user gathers light, then blasts a bundled beam on the second turn.", 
+            "Effect": "USER DELAY +1 UNLESS SUNNY", 
+            "PP": "10", 
+            "Power": "120", 
+            "Type": "GRASS"
+        }, 
+        "Sweet Scent": {
+            "Accuracy": "1.00", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "A sweet scent that lowers the opposing team's evasiveness.", 
+            "Effect": "TARGET MOD EVASION -1", 
+            "PP": "20", 
+            "Power": "0", 
+            "Type": "NORMAL"
+        }, 
+        "Synthesis": {
+            "Accuracy": "1.00", 
+            "Class": "OTHER", 
+            "Contact": "0", 
+            "Description": "The user restores its own HP. The amount of HP regained varies with the weather.", 
+            "Effect": "USER SYNTHESIS", 
+            "PP": "5", 
+            "Power": "0", 
+            "Type": "GRASS"
+        }, 
+        "Tackle": {
+            "Accuracy": "0.95", 
+            "Class": "PHYSICAL", 
+            "Contact": "1", 
+            "Description": "A physical attack in which the user charges and slams into the target with its whole body.", 
+            "Effect": "", 
+            "PP": "35", 
+            "Power": "35", 
+            "Type": "NORMAL"
+        }, 
+        "Take Down": {
+            "Accuracy": "0.85", 
+            "Class": "PHYSICAL", 
+            "Contact": "1", 
+            "Description": "A reckless, full-body charge attack for slamming into the target. It also damages the user a little.", 
+            "Effect": "USER RECOIL 0.25", 
+            "PP": "20", 
+            "Power": "90", 
+            "Type": "NORMAL"
+        }, 
+        "Vine Whip": {
+            "Accuracy": "1.00", 
+            "Class": "PHYSICAL", 
+            "Contact": "0", 
+            "Description": "The target is struck with slender, whiplike vines to inflict damage.", 
+            "Effect": "", 
+            "PP": "15", 
+            "Power": "35", 
+            "Type": "GRASS"
+        }, 
+        "Worry Seed": {
+            "Accuracy": "1.00", 
+            "Class": "OTHER", 
+            "Contact": "1", 
+            "Description": "A seed that causes worry is planted on the target. It prevents sleep by making its Ability Insomnia.", 
+            "Effect": "TARGET WORRYSEED", 
+            "PP": "10", 
+            "Power": "0", 
+            "Type": "GRASS"
+        }
+    }
+}
