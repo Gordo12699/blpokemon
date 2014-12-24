@@ -130,8 +130,8 @@ function PokemonMove::execute(%this, %battle, %user, %target)
 		%cprob = $Pokemon::Battle::CritTable[%c];
 		if(getRandom() < %cprob)
 		{
-			PokeDebug("   &--CRIT; MOD*1.5, -ATK IGNORED, +DEF IGNORED", %battle, %user, %target, %this);
-			%mod *= 1.5;
+			PokeDebug("   &--CRIT; MOD*2, -ATK MODS IGNORED, +DEF MODS IGNORED", %battle, %user, %target, %this);
+			%mod *= 2;
 			%crit = true;
 		}
 
