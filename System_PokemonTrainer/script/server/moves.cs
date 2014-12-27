@@ -110,16 +110,18 @@ function PokemonMove::execute(%this, %battle, %user, %target)
 
 	PokeDebug("   &--GENERATED HIT" SPC %arand, %battle, %user, %target, %this);
 
-	%ect = %this.getEffectCt();
-	for(%i = 0; %i < %ect; %i++)
-	{
-		%eff = %this.getEffectKeyword(%i);
-		if(isFunction(%f = "PokemonEffect_Pre_" @ %eff))
-		{
-			PokeDebug("&--CALLING PRE-MOVE EFFECT FOR" SPC %eff, %battle, %user, %target, %this);
-			call(%f, %battle, %user, %target, %this.getEffectTarget(%i), %this.getEffectParameters(%i));
-		}
-	}
+	// %ect = %this.getEffectCt();
+	// for(%i = 0; %i < %ect; %i++)
+	// {
+	// 	%eff = %this.getEffectKeyword(%i);
+	// 	if(isFunction(%f = "PokemonEffect_Pre_" @ %eff))
+	// 	{
+	// 		PokeDebug("&--CALLING PRE-MOVE EFFECT FOR" SPC %eff, %battle, %user, %target, %this);
+	// 		call(%f, %battle, %user, %target, %this.getEffectTarget(%i), %this.getEffectParameters(%i));
+	// 	}
+	// }
+	Pokemon_ProcessEffect(%this.effect, 2, %battle, %user, %target);
+	%battle.runSchedules(%battle.turn, 2);
 
 	if(%this.power > 0)
 	{
@@ -163,16 +165,132 @@ function PokemonMove::execute(%this, %battle, %user, %target)
 
 		PokeDebug("   &--TOTAL DAMAGE:" SPC %dam, %battle, %user, %target, %this);
 
-		%target.modHP(-%dam);
+		%battle.damageCombatant(%target, %user, %dam, trim((%crit ? "CRIT" : "") SPC (%tmod > 1 ? "SUPEREFF" : "INEFF")));
+		Pokemon_ProcessEffect(%this.effect, 3, %battle, %user, %target);
+		%battle.runSchedules(%battle.turn, 3);
 	}
 
+	// for(%i = 0; %i < %ect; %i++)
+	// {
+	// 	%eff = %this.getEffectKeyword(%i);
+	// 	if(isFunction(%f = "PokemonEffect_Post_" @ %eff))
+	// 	{
+	// 		PokeDebug("&--CALLING POST-MOVE EFFECT FOR" SPC %eff, %battle, %user, %target, %this);
+	// 		call(%f, %battle, %user, %target, %this.getEffectTarget(%i), %this.getEffectParameters(%i));
+	// 	}
+	// }
+	Pokemon_ProcessEffect(%this.effect, 4, %battle, %user, %target);
+	%battle.runSchedules(%battle.turn, 4);
+}
+
+function Pokemon_getEffectCt(%effect)
+{
+	return getFieldCount(%effect);
+}
+
+function Pokemon_getEffect(%effect, %i)
+{
+	return getField(%effect, %i);
+}
+
+function Pokemon_searchEffects(%effect, %key)
+{
+	%ct = Pokemon_getEffectCt(%effect);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%eff = Pokemon_getEFfectKeyword(%effect, %i);
+		if(%eff $= %key)
+			return %i;
+	}
+	return -1;
+}
+
+function Pokemon_getEffectTarget(%effect, %i)
+{
+	%eff = Pokemon_getEffect(%effect, %i);
+	%targ = firstWord(%eff);
+	return %targ;
+}
+
+function Pokemon_getEffectKeyword(%effect, %i)
+{
+	%eff = Pokemon_getEffect(%effect, %i);
+	%key = getWord(%eff, 1);
+	return %key;
+}
+
+function Pokemon_getEffectParameters(%effect, %i)
+{
+	%eff = Pokemon_getEffect(%effect, %i);
+	%key = getWords(%eff, 2, getWordCount(%eff) - 1);
+	return %key;
+}
+
+function Pokemon_getEffectParameter(%effect, %i, %j)
+{
+	%params = Pokemon_getEffectParameters(%effect, %i);
+	return getWord(%params, %j);
+}
+
+function Pokemon_ProcessEffect(%effect, %stage, %battle, %user, %target)
+{
+	if(!isObject(%battle) || %battle.getName() !$= "PokemonBattle")
+		return false;
+	if(!isObject(%user) || %user.superClass !$= "Pokemon" || !isObject(%target) || %target.superClass !$= "Pokemon")
+		return false;
+
+	%j = 0;
+	%ect = Pokemon_getEffectCt(%effect);
 	for(%i = 0; %i < %ect; %i++)
 	{
-		%eff = %this.getEffectKeyword(%i);
-		if(isFunction(%f = "PokemonEffect_Post_" @ %eff))
+		%ieff = Pokemon_getEffect(%effect, %i);
+		%peff = Pokemon_ProcessEffectSpecial(%ieff);
+		%eff = Pokemon_getEffectKeyword(%peff, %i);
+		if(isFunction(%f = "PokemonEffect_" @ %eff))
 		{
-			PokeDebug("&--CALLING POST-MOVE EFFECT FOR" SPC %eff, %battle, %user, %target, %this);
-			call(%f, %battle, %user, %target, %this.getEffectTarget(%i), %this.getEffectParameters(%i));
+			PokeDebug("&--CALLING STAGE" SPC %stage SPC "EFFECT FOR" SPC %eff, %battle, %user, %target, %this);
+			%r = call(%f, %stage, %battle, %user, %target, Pokemon_getEffectTarget(%peff, 0), Pokemon_getEffectParameters(%peff, 0));
+			if(%r < 0)
+				%j = %r;
 		}
 	}
+	return %j;
+}
+
+function Pokemon_ProcessEffectSpecial(%str)
+{
+	%end = 0;
+	while((%pos = strPos(%str, "^:", %end)) != -1)
+	{
+		%end = strPos(%str, ":^", %pos);
+
+		if(%end == -1)
+			break;
+
+		%len = %end - (%ss = (%pos + 2));
+		%content = getSubStr(%str, %ss, %len);
+
+		warn(%content);
+
+		switch$(firstWord(%content))
+		{
+			case "eval":
+				%ev = restWords(%content);
+				warn(%ev);
+				eval("%repl=" SPC %ev @ ";%s=true;");
+				if(!%s)
+					continue;
+			default:
+				continue;
+		}
+
+
+		%prelen = strLen(%str);
+		%from = getSubStr(%str, %pos, %len+4);
+		%str = strReplace(%str, %from, %repl);
+		%postlen = strLen(%str);
+		%end -= (%prelen - %postlen);
+	}
+
+	return %str;
 }

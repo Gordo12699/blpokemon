@@ -45,7 +45,7 @@
             "Class": "Special", 
             "Contact": "1", 
             "Description": "The user attacks the target by scattering petals for two to three turns. The user then becomes confused.", 
-            "Effect": "USER REPEAT 2t3 THEN USER CONFUSE", 
+            "Effect": "USER REPEAT ^:eval getRandom(2,3):^ THEN USER CONFUSE", 
             "PP": "20", 
             "Power": "90", 
             "Type": "GRASS"

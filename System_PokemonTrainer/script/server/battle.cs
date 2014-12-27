@@ -137,7 +137,7 @@ function PokemonBattle::initCombatant(%this, %comb, %from)
 	%comb = nameToID(%comb);
 	%from = nameToID(%from);
 	PokeDebug("POKEMON BATTLE " @ %this @ " INITIALISING COMBATANT " @ %comb, %this, %comb, %from);
-	%this.entry[%comb] = %this.turn;
+	%this.entry[%comb] = (%this.turn > 0 ? %this.turn : 0);
 	if(%this.findCombatant(%from) == -1)
 	{
 		for(%i = 1; %i < 6; %i++)
@@ -240,6 +240,33 @@ function PokemonBattle::getModStage(%this, %comb, %stat, %excludePos, %excludeNe
 	return %stage;
 }
 
+function PokemonBattle::modStage(%this, %comb, %stat, %mod)
+{
+	if(%this.findCombatant(%comb) == -1)
+		return "BADTARGET";
+
+
+	%st = %this.getModStage(%comb, %stat);
+
+	if(%st == $Pokemon::Battle::ModTableMin)
+		return "TOOLOW";
+	else if(%st == $Pokemon::Battle::ModTableMax)
+		return "TOOHIGH";
+
+	%newst = %st + %mod;
+	if(%newst < $Pokemon::Battle::ModTableMin)
+		%mod += $Pokemon::Battle::ModTableMin - %newst;
+	else if(%newst > $Pokemon::Battle::ModTableMax)
+		%mod += $Pokemon::Battle::ModTableMax - %newst;
+
+	if(%mod < 0)
+		%this.modStageNeg[%comb, %stat] += %mod;
+	else if(%mod > 0)
+		%this.modStagePos[%comb, %stat] += %mod;
+
+	return %this.getModStage(%comb, %stat);
+}
+
 function PokemonBattle::getCritStage(%this, %comb)
 {
 	if(%this.findCombatant(%comb) == -1)
@@ -249,6 +276,15 @@ function PokemonBattle::getCritStage(%this, %comb)
 	if(%stage > $Pokemon::Battle::CritMax)
 		return $Pokemon::Battle::CritMax;
 	return %stage;
+}
+
+function PokemonBattle::damageCombatant(%this, %comb, %attacker, %amt, %etc)
+{
+	if(%this.findCombatant(%comb) == -1)
+		return -1;
+
+	%new = %comb.modHP(-%amt);
+	return %new;
 }
 
 function PokemonBattle::Begin(%this)
@@ -282,6 +318,8 @@ function PokemonBattle::startTurn(%this)
 		%this.action[%comb] = "";
 		%this.shortCritStage[%comb] = 0;
 	}
+
+	%this.runSchedules(%this.turn, 0);
 }
 
 function PokemonBattle::isLegalAction(%this, %comb, %action)
@@ -402,6 +440,8 @@ function PokemonBattle::endTurn(%this)
 {
 	PokeDebug("POKEMON BATTLE" SPC %this SPC "ENDING TURN" SPC %this.turn, %this);
 
+	%this.runSchedules(%this.turn, 6);
+
 	for(%i = 0; %i < %this.combatants; %i++)
 	{
 		%comb = %this.combatant[%i];
@@ -440,6 +480,9 @@ function PokemonBattle::executeTurn(%this)
 	PokeDebug("POKEMON BATTLE" SPC %this SPC "EXECUTING TURN", %this);
 	%this.determinePriority();
 
+
+	%this.runSchedules(%this.turn, 1);
+
 	for(%i = 8; %i >= -8; %i--)
 	{
 		%todo = %this.priority[%i];
@@ -454,7 +497,8 @@ function PokemonBattle::executeTurn(%this)
 			%this.executeAction(%todo);
 		else
 		{
-			%str = "";
+			%sort = new GuiTextListCtrl();
+			// %str = "";
 			for(%j = 0; %j < %ct; %j++)
 			{
 				%comb = getWord(%todo, %j);
@@ -468,17 +512,19 @@ function PokemonBattle::executeTurn(%this)
 				if(%comb.ability $= "Quick Feet")
 					%speed *= 1.5;
 
-				%append = %speed SPC %comb;
+				%append = %speed TAB %comb;
 
 				PokeDebug("   +--SPEED FOR" SPC %comb @ ":" SPC %speed, %this, %comb);
 
-				%str = trim(%str TAB %append);
+				%sort.addRow(%j, %append);
+
+				// %str = trim(%str TAB %append);
 			}
 
-			PokeDebug("   +--UNSORTED:" SPC %str, %battle);
+			// PokeDebug("   +--UNSORTED:" SPC %str, %battle);
 
 			//Solve cases where speeds are equal.
-			%fct = getFieldCount(%str);
+			%fct = %sort.rowCount();
 			%solved = false;
 			while(!%solved)
 			{
@@ -486,36 +532,131 @@ function PokemonBattle::executeTurn(%this)
 				%solved = true;
 				for(%l = 0; %l < %fct; %l++)
 				{
-					%f = getField(%str, %l);
-					%s = firstWord(%f);
+					%f = %sort.getRowText(%l);
+					%s = getField(%f, 0);
 					if($pktemp::has[%s])
 					{
 						%s += (getRandom(1) ? 1 : -1);
-						%str = setField(%str, %l, %s SPC getWord(%f, 1));
+						%str = setField(%f, 0, %s);
+						%sort.setRowByID(%sort.getRowID(%l), %str);
 						%solved = false;
 						continue;
 					}
 					$pktemp::has[%s] = true;
 				}
 			}
-			%str = bubbleSort(%str);
+			// %str = bubbleSort(%str);
 
-			PokeDebug("   +--SORTED:" SPC %str, %battle);
+			%sort.sortNumerical(0, false);
 
-			for(%k = %fct-1; %k >= 0; %k--)
+			if($PokemonDebug)
 			{
-				%f = getField(%str, %k);
-				%s = getWord(%f, 0);
-				%c = getWord(%f, 1);
+				for(%l = 0; %l < %fct; %l++)
+					PokeDebug("   +--SORT" SPC %l @ ":" SPC %sort.getRowText(%l), %this);
+			}
+
+			for(%k = 0; %k < %fct; %k++)
+			{
+				%row = %sort.getRowText(%k);
+
+				%s = getField(%row, 0);
+				%c = getField(%row, 1);
 				PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
 
-				%this.executeAction(getWord(%f, 1));
+				%this.executeAction(%c);
 			}
+
+			// PokeDebug("   +--SORTED:" SPC %str, %battle);
+
+			// for(%k = %fct-1; %k >= 0; %k--)
+			// {
+			// 	%f = getField(%str, %k);
+			// 	%s = getWord(%f, 0);
+			// 	%c = getWord(%f, 1);
+			// 	PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
+
+			// 	%this.executeAction(getWord(%f, 1));
+			// }
 		}
 
 		%this.priority[%i] = "";
 	}
 
+	%this.runSchedules(%this.turn, 5);
+
 	%this.endTurn();
 }
 
+function PokemonBattle::setEffectSchedule(%this, %turn, %stage, %eff, %comb, %target)
+{
+	%turn = mFloor(mAbs(%turn));
+	%scheds = %this.turnSchedules[%turn] += 0;
+
+	if(%this.findCombatant(%comb) == -1)
+		%comb = 0;
+	else
+	{
+		if(searchWords(%this.combScheds[%comb], %turn) == -1)
+			%this.combScheds[%comb] = trim(%this.combScheds[%comb] SPC %turn);
+	}
+
+	if(%this.findCombatant(%target) == -1)
+		%target = 0;
+
+	%this.turnSchedule[%turn, %scheds] = %eff;
+	%this.turnScheduleStage[%turn, %scheds] = %stage;
+	%this.turnScheduleComb[%turn, %scheds] = %comb;
+	%this.turnScheduleTarget[%turn, %scheds] = %target;
+	%this.turnSchedules[%turn]++;
+	if(%turn > %this.scheduleGreatestTurn)
+		%this.scheduleGreatestTurn = %turn;
+
+	PokeDebug("POKEMON BATTLE" SPC %this SPC "SCHEDULING EFFECT FOR TURN" SPC %turn, %this, %comb, %target);
+	PokeDebug("+--SCHEDULES:" SPC %scheds @ "-->" @ %this.turnSchedules[%turn], %this, %comb, %target);
+	PokeDebug("+--STAGE:" SPC %stage, %this, %comb, %target);
+	PokeDebug("+--COMBATANT:" SPC %comb, %this, %comb, %target);
+	PokeDebug("+--TARGET:" SPC %target, %this, %comb, %target);
+	PokeDebug("+--EFFECT: " SPC %eff, %this, %comb, %target);
+}
+
+function PokemonBattle::scheduleEffect(%this, %turnsAhead, %stage, %eff, %comb, %target)
+{
+	%turnsAhead = mFloor(mAbs(%turnsAhead));
+	%turn = %this.turn + %turnsAhead;
+
+	%this.setEffectSchedule(%turn, %stage, %eff, %comb, %target);
+}
+
+function PokemonBattle::runSchedule(%this, %turn, %i)
+{
+	%eff = %this.turnSchedule[%turn, %i];
+	%stage = %this.turnScheduleStage[%turn, %i];
+	%user = %this.turnScheduleComb[%turn, %i];
+	%target = %this.turnScheduleTarget[%turn, %i];
+
+	PokeDebug("POKEMON BATTLE" SPC %this SPC "RUNNING SCHEDULE ON TURN" SPC %turn, %this, %user, %target);
+	PokeDebug("+--EFFECT: " SPC %eff, %this, %user, %target);
+	PokeDebug("+--USER:" SPC %user, %this, %user, %target);
+	PokeDebug("+--TARGET:" SPC %target, %this, %user, %target);
+	PokeDebug("+--STAGE:" SPC %stage, %this, %user, %target);
+
+	return Pokemon_ProcessEffect(%eff, %stage, %this, %user, %target);
+}
+
+function PokemonBattle::runSchedules(%this, %turn, %stage)
+{
+	%turn = mFloor(mAbs(%turn));
+
+	PokeDebug("POKEMON BATTLE" SPC %this SPC "RUNNING SCHEDULES FOR" SPC %turn @ "." @ %stage);
+
+	%j = 0;
+	for(%i = 0; %i < %this.turnSchedules[%turn]; %i++)
+	{
+		if(%this.turnScheduleStage[%turn, %i] !$= %stage)
+			continue;
+
+		%this.runSchedule(%turn, %i);
+		%j++;
+	}
+	return %j;
+}

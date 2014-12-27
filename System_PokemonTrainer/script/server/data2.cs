@@ -481,3 +481,24 @@ function PokemonList::addFromStrings(%this, %data, %moves, %learns, %dex, %evolv
 
 	return %this.newPokemon(%name, %type, %baseStats, %catchRate, %desc, %evs, %evolve, %passDex, %moves, %learns);
 }
+
+function ddd()
+{
+	PokemonData_Init();
+
+	echo(PokemonList.addFromJSON2($PokemonData.loadDataJSON($Pokemon::Root @ "data/Gen1Revision.json", "Pokemon")));
+	echo(PokemonMoves.addFromJSON2($PokemonData.loadDataJSON($Pokemon::Root @ "data/MovesNew.json", "Pokemon")));
+
+	if(isObject($bulb))
+		$bulb.delete();
+	if(isObject($bulb2))
+		$bulb2.delete();
+
+	$bulb = Pokemon_New(PokemonBulbasaurData, 10293, 10293);
+	$bulb2 = Pokemon_New(PokemonBulbasaurData, 10293, 10293);
+
+	$bulb.setMove(0, PokemonMoveRazor_Leaf);
+	$bulb2.setMove(0, PokemonMoveRazor_Leaf);
+
+	$PokemonDebug = 3;
+}
