@@ -77,3 +77,32 @@ if(!isObject(PokemonHPBarRedProfile))
 		border = 0; 
 	};
 }
+
+if(!isObject(CUBE_WindowProfile))
+{
+	new GuiControlProfile(CUBE_WindowProfile : GuiWindowProfile)
+	{
+		opaque = 1;
+
+		hasBitmapArray = 1;
+		bitmap = $Pokemon::UIRoot @ "cubeWindow.png";
+
+		fillColor = "128 128 128 255";
+		fillColorHL = "128 128 128 255";
+		fillColorNA = "128 128 128 255";
+
+		fontColor = "225 225 225 255";
+		fontColorHL = "225 225 225 255";
+		fontColorNA = "0 0 0 255";
+		fontColorSEL = "170 170 170 255";
+		fontColorLink = "0 0 200 255";
+		fontColorLinkHL = "85 25 140 255";
+		
+		fontType = "Monospace";
+		fontSize = 18;
+		textOffset = "10 5";
+		justify = "left";
+
+		modal = true;
+	};
+}

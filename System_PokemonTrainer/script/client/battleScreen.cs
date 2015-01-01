@@ -1,88 +1,16 @@
-$Pokemon::ImageRoot = $Pokemon::Root @ "img/";
-$Pokemon::BattleRoot = $Pokemon::ImageRoot @ "battle/";
-$Pokemon::StageRoot = $Pokemon::BattleRoot @ "stage/";
-$Pokemon::BackgroundRoot = $Pokemon::BattleRoot @ "backgrounds/";
-$Pokemon::UIRoot = $Pokemon::ImageRoot @ "ui/";
-$Pokemon::PokemonRoot = $Pokemon::ImageRoot @ "pokemon/";
-$Pokemon::FrontRoot = $Pokemon::PokemonRoot @ "front/";
-$Pokemon::BackRoot = $Pokemon::PokemonRoot @ "back/";
-
 $Pokemon::HPProfile0 = PokemonHPBarGreenProfile;
 $Pokemon::HPProfile1 = PokemonHPBarYellowProfile;
 $Pokemon::HPProfile2 = PokemonHPBarRedProfile;
 
-function getPokemonImage(%dex, %female, %shiny, %back, %zz)
-{
-	if(%back)
-		%path = $Pokemon::BackRoot;
-	else
-		%path = $Pokemon::FrontRoot;
-
-	if(!isFile(%path @ %dex @ ".png"))
-	{
-		if(!%zz)
-			return getPokemonImage(%dex, %female, %shiny, %back, 1);
-		return 0;
-	}
-
-	if(%shiny && isFile(%path @ "shiny/" @ %dex @ ".png"))
-		%path = %path @ "shiny/";
-
-	if(%female && isFile(%path @ "female/" @ %dex @ ".png"))
-		%path = %path @ "female/";
-
-	%file = %path @ %dex @ ".png";
-	if(!isFile(%file))
-	{
-		if(!%zz)
-			return getPokemonImage(%dex, %female, %shiny, %back, 1);
-		return 0;
-	}
-
-	return %file;
-}
-
-function getGenderSymbolImage(%gend)
-{
-	%gend++;
-
-	if(%gend == 0)
-		return "";
-	else if(%gend == 1)
-		return $Pokemon::UIRoot @ "symbols/male.png";
-	else if(%gend == 2)
-		return $Pokemon::UIRoot @ "symbols/female.png";
-
-	return "";
-}
-
-function getBattleBackground(%theme, %time)
-{
-	%f = $Pokemon::BackgroundRoot;
-	%tf = %theme @ ".png";
-
-	if(isFile(%f @ %time @ "/" @ %tf))
-		%f = %f @ %time @ "/";
-
-	%f = %f @ %tf;
-	if(!isFile(%f))
-	{
-		if(isFile(%f = $Pokemon::BackgroundRoot @ "day/" @ %tf))
-			return %f;
-		return -1;
-	}
-
-	return %f;
-}
-
 function GuiProgressCtrl::Pokemon_SetHPBar(%this, %hp, %maxHP)
 {
-	if(%maxHP <= 0)
-		%maxHP = 1;
 	if(%hp < 0)
 		%hp = 0;
+	if(%maxHP > 0)
+		%hpPerc = %hp / %maxHP;
+	else
+		%hpPerc = %hp;
 
-	%hpPerc = %hp / %maxHP;
 	if(%hpPerc > 1)
 		%hpPerc = 1;
 
@@ -94,7 +22,7 @@ function GuiProgressCtrl::Pokemon_SetHPBar(%this, %hp, %maxHP)
 		%profile = $Pokemon::HPProfile1;
 
 	%this.setProfile(%profile);
-	%this.setValue(mFloor(%hpPerc * 48) / 48);
+	%this.setValue(mFloor(%hpPerc * 48 + 0.5) / 48); //Snap to 1/48 since daddy Truce said so c:
 
 	return %hpPerc;
 }
@@ -127,8 +55,11 @@ function PokemonBattleGui::setPokemon(%this, %side, %i, %dex, %level, %hp, %hpma
 
 	if(!%side)
 	{
-		("PokemonPlayerHPMax" @ %i).setValue(%hpmax);
-		("PokemonPlayerHPCurr" @ %i).setValue(%hp);
+		if(%hpmax > 0)
+		{
+			("PokemonPlayerHPMax" @ %i).setValue(%hpmax);
+			("PokemonPlayerHPCurr" @ %i).setValue(%hp);
+		}
 		("PokemonPlayerXPBar" @ %i).setValue(%xp);
 	}
 	return true;
@@ -141,21 +72,24 @@ function PokemonBattleGui::setBattleType(%this, %type)
 		case 1:
 			for(%i = 0; %i < 3; %i++)
 			{
-				%this.setPokemon(0, %i, (%i == 1 ? "show" : -1));
-				%this.setPokemon(1, %i, (%i == 1 ? "show" : -1));
+				%this.setPokemon(0, %i, (%i != 1 ? "show" : -1));
+				%this.setPokemon(1, %i, (%i != 1 ? "show" : -1));
 			}
+			$Pokemon::Client::BattleType = 1;
 		case 2:
 			for(%i = 0; %i < 3; %i++)
 			{
 				%this.setPokemon(0, %i, "show");
 				%this.setPokemon(1, %i, "show");
 			}
+			$Pokemon::Client::BattleType = 2;
 		default:
 			for(%i = 0; %i < 3; %i++)
 			{
-				%this.setPokemon(0, %i, (%i != 1 ? "show" : -1));
-				%this.setPokemon(1, %i, (%i != 1 ? "show" : -1));
+				%this.setPokemon(0, %i, (%i == 1 ? "show" : -1));
+				%this.setPokemon(1, %i, (%i == 1 ? "show" : -1));
 			}
+			$Pokemon::Client::BattleType = 0;
 	}
 	return true;
 }

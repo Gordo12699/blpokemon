@@ -50,6 +50,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				data = %data;
 
 				trainerID = (%trainerBL_ID !$= "" ? solveTrainerID(%trainerBL_ID) : "");
+				secretID = (%trainerBL_ID !$= "" ? solveSecretID(%trainerBL_ID) : "");
 				owner = (%owner >= 0 ? -1 : %owner + 0);
 				nickname = (%name $= "" ? %data.name : %name);
 
@@ -92,7 +93,6 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				evSpeed = 0;
 				evHP = 0;
 
-				secretID = mAbs(getRandom(0xFFFFFFFF, 0x80000000) | 0) | 0;
 				personality = mAbs(getRandom(0xFFFFFFFF, 0x80000000) | 0) | 0; //we're gonna make do even if torque doesn't want to
 				gender = 0;
 				ability = -1;
@@ -106,6 +106,13 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 	%this.setStatsForLevel(1);
 
 	return %this;
+}
+
+function Pokemon::onAdd(%this)
+{
+	if(!isObject(PokemonSet))
+		new SimSet(PokemonSet);
+	PokemonSet.add(%this);
 }
 
 function Pokemon::solvePersonality(%this)
@@ -134,9 +141,14 @@ function Pokemon::solvePersonality(%this)
 	else
 		%tID = %this.trainerID;
 
+	if(%this.secretID $= "")
+		%sID = $Pokemon::GenericSecretID;
+	else
+		%sID = %this.secretID;
+
 	%p1 = mFloor(%this.personality / 32768);
 	%p2 = %this.personality % 32768;
-	%s = %tID ^ %this.secretID ^ %p1 ^ %p2;
+	%s = %tID ^ %sID ^ %p1 ^ %p2;
 	if(%s < $Pokemon::ShinyThreshold)
 		%this.shiny = true;
 }

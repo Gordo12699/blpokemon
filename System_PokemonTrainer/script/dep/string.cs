@@ -12,6 +12,24 @@ function searchWords(%sourceString, %searchString)
 	return -1;
 }
 
+function searchFields(%sourceString, %searchString, %firstword)
+{
+	if(%searchString $= "")
+		return -1;
+
+	%ct = getFieldCount(%sourceString);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%f = getField(%sourceString, %i);
+		if(%firstword)
+			%f = firstWord(%f);
+
+		if(%f $= %searchString)
+			return %i;
+	}
+	return -1;
+}
+
 function bubbleSort(%list)
 {
 	%ct = getFieldCount(%list);
