@@ -1,3 +1,3 @@
 exec("./cube.cs");
 
-exec("./PokemonBattleGui.gui");
+exec("./PokemonBattleControl.gui");

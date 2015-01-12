@@ -71,5 +71,27 @@ function getBattleBackground(%theme, %time)
 	return %f;
 }
 
+function getMoveButtonImage(%type, %nonone)
+{
+	%f = $Pokemon::UIRoot @ "buttons/moves/";
+	%tf = %type @ ".png";
+
+	if(isFile(%fp = %f @ %tf))
+		return %fp;
+
+	return %f @ "none.png";
+}
+
+function getTypeImage(%type)
+{
+	%f = $Pokemon::UIRoot @ "types/";
+	%tf = %type @ ".png";
+
+	if(isFile(%fp = %f @ %tf))
+		return %fp;
+
+	return "";
+}
+
 exec("./dep/main.cs");
 exec("./client/main.cs");

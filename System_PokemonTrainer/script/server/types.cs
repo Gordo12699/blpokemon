@@ -79,14 +79,16 @@ $Pokemon::TypeEffectiveness["-1"] = "1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1 1";
 
 function Pokemon_GetTypeMod(%attType, %dType1, %dType2)
 {
-	%mod = 1;
-	
 	%attInd = $Pokemon::TypeIndex[%attType];
 	%d1Ind = $Pokemon::TypeIndex[%dType1];
 	%d2Ind = $Pokemon::TypeIndex[%dType2];
 
-	%mod *= getWord($Pokemon::TypeEffectiveness[%attInd], %d1Ind);
-	%mod *= getWord($Pokemon::TypeEffectiveness[%attInd], %d2Ind);
+	%mod1 = getWord($Pokemon::TypeEffectiveness[%attInd], %d1Ind);
+	if(%mod1 $= "")
+		%mod1 = 1;
+	%mod2 = getWord($Pokemon::TypeEffectiveness[%attInd], %d2Ind);
+	if(%mod2 $= "")
+		%mod2 = 1;
 
-	return %mod;
+	return %mod1 * %mod2;
 }

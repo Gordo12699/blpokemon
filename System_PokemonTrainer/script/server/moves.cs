@@ -272,6 +272,7 @@ function Pokemon_ProcessEffectSpecial(%str)
 
 		warn(%content);
 
+		%repl = "";
 		switch$(firstWord(%content))
 		{
 			case "eval":
@@ -280,6 +281,11 @@ function Pokemon_ProcessEffectSpecial(%str)
 				eval("%repl=" SPC %ev @ ";%s=true;");
 				if(!%s)
 					continue;
+
+			case "chance":
+				%amt = restWords(%content);
+				if(getRandom() > %amt)
+					return "";
 			default:
 				continue;
 		}

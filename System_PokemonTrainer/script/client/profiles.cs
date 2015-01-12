@@ -13,6 +13,22 @@ if(!isObject(PokemonNameTextProfile))
 	};
 }
 
+if(!isObject(PokemonDialogueTextProfile))
+{
+	new GuiControlProfile(PokemonDialogueTextProfile)
+	{
+		opaque = false;
+		fontType = "Impact";
+		fontSize = 26;
+		fontColor = "255 255 255";
+		doFontOutline = true;
+		fontOutlineColor = "0 0 0";
+		justify = "left";
+		border = false;
+	};
+}
+
+
 if(!isObject(PokemonNumerical1TextProfile))
 {
 	new GuiControlProfile(PokemonNumerical1TextProfile)

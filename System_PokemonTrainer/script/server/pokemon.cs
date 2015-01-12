@@ -53,6 +53,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				secretID = (%trainerBL_ID !$= "" ? solveSecretID(%trainerBL_ID) : "");
 				owner = (%owner >= 0 ? -1 : %owner + 0);
 				nickname = (%name $= "" ? %data.name : %name);
+				species = %data.name;
 
 				move0 = -1;
 				move1 = -1;
@@ -68,6 +69,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				ppMax3 = -1;
 
 				item = -1;
+				pokeball = -1;
 
 				statLevel = 1;
 				statMaxHP = 1;
@@ -106,6 +108,20 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 	%this.setStatsForLevel(1);
 
 	return %this;
+}
+
+function isPokemon(%obj)
+{
+	if(!isObject(%obj))
+		return false;
+
+	if(%obj.getClassName() !$= "ScriptObject")
+		return false;
+
+	if(%obj.superClass !$= "Pokemon")
+		return false;
+
+	return true;
 }
 
 function Pokemon::onAdd(%this)
