@@ -95,3 +95,5 @@ function getTypeImage(%type)
 
 exec("./dep/main.cs");
 exec("./client/main.cs");
+
+$Pokemon::Exec::ClientMain = true;

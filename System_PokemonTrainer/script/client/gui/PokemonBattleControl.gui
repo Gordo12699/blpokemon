@@ -1,3 +1,6 @@
+if(isObject(PokemonBattleControl))
+   return;
+
 //--- OBJECT WRITE BEGIN ---
 new GuiControl(PokemonBattleControl) {
    profile = "GuiDefaultProfile";
@@ -1706,7 +1709,7 @@ new GuiControl(PokemonBattleControl) {
             extent = "320 480";
             minExtent = "8 2";
             enabled = "1";
-            visible = "0";
+            visible = "1";
             clipToParent = "1";
             color = "66 49 49 255";
 
@@ -1772,7 +1775,7 @@ new GuiControl(PokemonBattleControl) {
                   enabled = "1";
                   visible = "1";
                   clipToParent = "1";
-                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/none.png";
+                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/dragon.png";
                   wrap = "0";
                   lockAspectRatio = "0";
                   alignLeft = "0";
@@ -1783,12 +1786,71 @@ new GuiControl(PokemonBattleControl) {
                   mMultiply = "0";
                      slot = "0";
 
+                  new GuiTextCtrl(PokemonMoveName0) {
+                     profile = "PokemonDialogueTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 16";
+                     extent = "184 26";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "Dragon Dance";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePP0) {
+                     profile = "PokemonNumerical1TextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "148 48";
+                     extent = "48 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "0/10";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePPText0) {
+                     profile = "PokemonNameTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "132 52";
+                     extent = "24 18";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "PP";
+                     maxLength = "255";
+                  };
+                  new GuiBitmapCtrl(PokemonMoveType0) {
+                     profile = "GuiDefaultProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 48";
+                     extent = "64 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/types/dragon.png";
+                     wrap = "0";
+                     lockAspectRatio = "0";
+                     alignLeft = "0";
+                     alignTop = "0";
+                     overflowImage = "0";
+                     keepCached = "0";
+                     mColor = "255 255 255 255";
+                     mMultiply = "0";
+                  };
                   new GuiMouseEventCtrl(PokemonMoveMouse) {
                      profile = "GuiDefaultProfile";
                      horizSizing = "right";
                      vertSizing = "bottom";
                      position = "0 0";
-                     extent = "124 46";
+                     extent = "248 92";
                      minExtent = "8 2";
                      enabled = "1";
                      visible = "1";
@@ -1806,7 +1868,7 @@ new GuiControl(PokemonBattleControl) {
                   enabled = "1";
                   visible = "1";
                   clipToParent = "1";
-                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/none.png";
+                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/dragon.png";
                   wrap = "0";
                   lockAspectRatio = "0";
                   alignLeft = "0";
@@ -1817,12 +1879,71 @@ new GuiControl(PokemonBattleControl) {
                   mMultiply = "0";
                      slot = "1";
 
+                  new GuiTextCtrl(PokemonMoveName1) {
+                     profile = "PokemonDialogueTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 16";
+                     extent = "184 26";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "Dragon Dance";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePP1) {
+                     profile = "PokemonNumerical1TextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "148 48";
+                     extent = "48 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "0/10";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePPText1) {
+                     profile = "PokemonNameTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "132 52";
+                     extent = "24 18";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "PP";
+                     maxLength = "255";
+                  };
+                  new GuiBitmapCtrl(PokemonMoveType1) {
+                     profile = "GuiDefaultProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 48";
+                     extent = "64 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/types/dragon.png";
+                     wrap = "0";
+                     lockAspectRatio = "0";
+                     alignLeft = "0";
+                     alignTop = "0";
+                     overflowImage = "0";
+                     keepCached = "0";
+                     mColor = "255 255 255 255";
+                     mMultiply = "0";
+                  };
                   new GuiMouseEventCtrl(PokemonMoveMouse) {
                      profile = "GuiDefaultProfile";
                      horizSizing = "right";
                      vertSizing = "bottom";
                      position = "0 0";
-                     extent = "124 46";
+                     extent = "248 92";
                      minExtent = "8 2";
                      enabled = "1";
                      visible = "1";
@@ -1840,7 +1961,7 @@ new GuiControl(PokemonBattleControl) {
                   enabled = "1";
                   visible = "1";
                   clipToParent = "1";
-                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/none.png";
+                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/dragon.png";
                   wrap = "0";
                   lockAspectRatio = "0";
                   alignLeft = "0";
@@ -1851,12 +1972,71 @@ new GuiControl(PokemonBattleControl) {
                   mMultiply = "0";
                      slot = "2";
 
+                  new GuiTextCtrl(PokemonMoveName2) {
+                     profile = "PokemonDialogueTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 16";
+                     extent = "184 26";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "Dragon Dance";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePP2) {
+                     profile = "PokemonNumerical1TextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "148 48";
+                     extent = "48 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "0/10";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePPText2) {
+                     profile = "PokemonNameTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "132 52";
+                     extent = "24 18";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "PP";
+                     maxLength = "255";
+                  };
+                  new GuiBitmapCtrl(PokemonMoveType2) {
+                     profile = "GuiDefaultProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 48";
+                     extent = "64 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/types/dragon.png";
+                     wrap = "0";
+                     lockAspectRatio = "0";
+                     alignLeft = "0";
+                     alignTop = "0";
+                     overflowImage = "0";
+                     keepCached = "0";
+                     mColor = "255 255 255 255";
+                     mMultiply = "0";
+                  };
                   new GuiMouseEventCtrl(PokemonMoveMouse) {
                      profile = "GuiDefaultProfile";
                      horizSizing = "right";
                      vertSizing = "bottom";
                      position = "0 0";
-                     extent = "124 46";
+                     extent = "248 92";
                      minExtent = "8 2";
                      enabled = "1";
                      visible = "1";
@@ -1874,7 +2054,7 @@ new GuiControl(PokemonBattleControl) {
                   enabled = "1";
                   visible = "1";
                   clipToParent = "1";
-                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/none.png";
+                  bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/buttons/moves/dragon.png";
                   wrap = "0";
                   lockAspectRatio = "0";
                   alignLeft = "0";
@@ -1885,12 +2065,71 @@ new GuiControl(PokemonBattleControl) {
                   mMultiply = "0";
                      slot = "3";
 
+                  new GuiTextCtrl(PokemonMoveName3) {
+                     profile = "PokemonDialogueTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 16";
+                     extent = "184 26";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "Dragon Dance";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePP3) {
+                     profile = "PokemonNumerical1TextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "148 48";
+                     extent = "48 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "0/10";
+                     maxLength = "255";
+                  };
+                  new GuiTextCtrl(PokemonMovePPText3) {
+                     profile = "PokemonNameTextProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "132 52";
+                     extent = "24 18";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     text = "PP";
+                     maxLength = "255";
+                  };
+                  new GuiBitmapCtrl(PokemonMoveType3) {
+                     profile = "GuiDefaultProfile";
+                     horizSizing = "right";
+                     vertSizing = "bottom";
+                     position = "32 48";
+                     extent = "64 24";
+                     minExtent = "8 2";
+                     enabled = "1";
+                     visible = "1";
+                     clipToParent = "1";
+                     bitmap = "~/scripts/mod/System_PokemonTrainer/img/ui/types/dragon.png";
+                     wrap = "0";
+                     lockAspectRatio = "0";
+                     alignLeft = "0";
+                     alignTop = "0";
+                     overflowImage = "0";
+                     keepCached = "0";
+                     mColor = "255 255 255 255";
+                     mMultiply = "0";
+                  };
                   new GuiMouseEventCtrl(PokemonMoveMouse) {
                      profile = "GuiDefaultProfile";
                      horizSizing = "right";
                      vertSizing = "bottom";
                      position = "0 0";
-                     extent = "124 46";
+                     extent = "248 92";
                      minExtent = "8 2";
                      enabled = "1";
                      visible = "1";
@@ -1908,7 +2147,7 @@ new GuiControl(PokemonBattleControl) {
             extent = "320 480";
             minExtent = "8 2";
             enabled = "1";
-            visible = "1";
+            visible = "0";
             clipToParent = "1";
             color = "128 128 128 255";
 

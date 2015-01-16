@@ -27,6 +27,38 @@ function GuiProgressCtrl::Pokemon_SetHPBar(%this, %hp, %maxHP)
 	return %hpPerc;
 }
 
+function PokemonBattleGui::setMove(%this, %i, %type, %name, %pp, %ppmax)
+{
+	%i = %i % 4;
+
+	%bimg = getMoveButtonImage(%type);
+	%timg = getTypeImage(%type);
+
+	("PokemonMoveImg" @ %i).setBitmap(%bimg);
+
+	if(fileBase(%bimg) !$= "none")
+	{
+		("PokemonMoveName" @ %i).setText(%name);
+		("PokemonMoveType" @ %i).setBitmap(%timg);
+		("PokemonMovePP" @ %i).setValue(%pp + 0 @ "/" @ %ppmax + 0);
+		("PokemonMovePPText" @ %i).setValue("PP");
+
+		("PokemonMoveName" @ %i).setVisible(true);
+		("PokemonMoveType" @ %i).setVisible(true);
+		("PokemonMovePP" @ %i).setVisible(true);
+		("PokemonMovePPText" @ %i).setVisible(true);
+	}
+	else
+	{
+		("PokemonMoveName" @ %i).setVisible(false);
+		("PokemonMoveType" @ %i).setVisible(false);
+		("PokemonMovePP" @ %i).setVisible(false);
+		("PokemonMovePPText" @ %i).setVisible(false);
+	}
+
+	return true;
+}
+
 function PokemonBattleGui::setPokemon(%this, %side, %i, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny)
 {
 	%i = %i % 3;
@@ -47,7 +79,15 @@ function PokemonBattleGui::setPokemon(%this, %side, %i, %dex, %level, %hp, %hpma
 		return;
 
 	%sprite.setBitmap(getPokemonImage(%dex, %gender, %shiny, !%side));
-	("Pokemon" @ %pside @ "Gender" @ %i).setBitmap(getGenderSymbolImage(%gender));
+
+	%o = ("Pokemon" @ %pside @ "Gender" @ %i);
+	if(%gender != -1)
+	{
+		%o.setBitmap(getGenderSymbolImage(%gender));
+		%o.setVisible(true);
+	}
+	else
+		%o.setVisible(false);
 
 	("Pokemon" @ %pside @ "Name" @ %i).setValue(%name);
 	("Pokemon" @ %pside @ "Level" @ %i).setValue(%level);

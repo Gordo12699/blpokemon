@@ -25,7 +25,7 @@ function PokemonClientBattle::resetPokemonData(%this)
 			%this.pokemon[%j, %i, "ID"] = 0;
 			%this.pokemon[%j, %i, "Name"] = "???";
 			%this.pokemon[%j, %i, "HPP"] = 1;
-			%this.pokemon[%j, %i, "Dex"] = 0;
+			%this.pokemon[%j, %i, "Dex"] = -1;
 			%this.pokemon[%j, %i, "Level"] = 0;
 			%this.pokemon[%j, %i, "Gender"] = -1;
 			%this.pokemon[%j, %i, "Shiny"] = false;
@@ -85,6 +85,7 @@ function PokemonClientBattle::solvePokemonIndex(%this, %ind)
 		case 2: %id = %id % 3;
 		default: %id = 1;
 	}
+	return %id;
 }
 
 function PokemonClientBattle::setPokemonData(%this, %side, %ind, %data, %val)
@@ -93,6 +94,28 @@ function PokemonClientBattle::setPokemonData(%this, %side, %ind, %data, %val)
 	%ind = %this.solvePokemonIndex(%ind);
 
 	%this.pokemon[%side, %ind, %data] = %val;
+}
+
+function PokemonClientBattle::setPokemon(%this, %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id)
+{
+	%side %= 2;
+	%this.setPokemonData(%side, %ind, "ID", %id);
+	%this.setPokemonData(%side, %ind, "Name", %name);
+	%this.setPokemonData(%side, %ind, "Level", %level);
+	%this.setPokemonData(%side, %ind, "Dex", %dex);
+	%this.setPokemonData(%side, %ind, (%side == 0 ? "HPCurr" : "HPP"), %hp);
+	%this.setPokemonData(%side, %ind, "HPMax", %hpmax);
+	%this.setPokemonData(%side, %ind, "Gender", %gender);
+	%this.setPokemonData(%side, %ind, "Shiny", %shiny);
+	%this.setPokemonData(%side, %ind, "XP", %xp);
+}
+
+function PokemonClientBattle::setPokemonMove(%this, %side, %ind, %move, %name, %type, %pp, %ppmax)
+{
+	%this.setPokemonData(%side, %ind, "Move_" @ %move, %name);
+	%this.setPokemonData(%side, %ind, "MoveType_" @ %move, %type);
+	%this.setPokemonData(%side, %ind, "MovePP_" @ %move, %pp);
+	%this.setPokemonData(%this, %ind, "MovePPMax_" @ %move, %ppmax);
 }
 
 function PokemonClientBattle::displayPokemonData(%this)
@@ -110,7 +133,7 @@ function PokemonClientBattle::displayPokemonData(%this)
 
 		%hpp0 = %this.pokemon[0, %i, "HPCurr"];
 		%hpp1 = %this.pokemon[1, %i, "HPP"];
-		%hpm = %this.pokemon[0, %i, "HPMax"]
+		%hpm = %this.pokemon[0, %i, "HPMax"];
 		%xp = %this.pokemon[0, %i, "XP"];
 
 		PokemonBattleGui.setPokemon(0, %i, %dex0, %lvl0, %hpp0, %hpm, %xp, %n0, %g0, %s0);
@@ -124,9 +147,14 @@ function PokemonClientBattle::displayMoveData(%this, %ind)
 
 	for(%i = 0; %i < 4; %i++)
 	{
-		%type = %this.pokemon[0, %ind, "MoveType", %i];
 		%name = %this.pokemon[0, %ind, "Move", %i];
+		if(%name $= "")
+			%type = "none";
+		else
+			%type = %this.pokemon[0, %ind, "MoveType", %i];
 		%pp = %this.pokemon[0, %ind, "MovePP", %i];
 		%ppmax = %this.pokemon[0, %ind, "MovePPMax", %i];
+
+		PokemonBattleGui.setMove(%i, %type, %name, %pp, %ppmax);
 	}
 }

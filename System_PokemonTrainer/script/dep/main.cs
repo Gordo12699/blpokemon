@@ -26,3 +26,5 @@ function PokeDebug(%msg, %o0, %o1, %o2, %o3, %o4, %o5)
 
 exec("./jettison.cs");
 exec("./string.cs");
+
+$Pokemon::Exec::Dependency = true;
