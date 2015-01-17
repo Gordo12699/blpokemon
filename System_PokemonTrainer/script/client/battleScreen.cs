@@ -194,3 +194,24 @@ function PokemonBattleGui::randomiseBattle(%this)
 
 	return true;
 }
+
+function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8)
+{
+	for(%i = 1; %i <= 8; %i++)
+	{
+		if(%a[%i] $= "")
+			continue;
+
+		%text = strReplace(%text, "%" @ %i, %a[%i]);
+	}
+
+	if(%text $= "")
+	{
+		PokemonBattleDialogue.setVisible(false);
+		return;
+	}
+	else
+		PokemonBattleDialogue.setVisible(true);
+
+	PokemonBattleDialogueText.setValue(%text);
+}

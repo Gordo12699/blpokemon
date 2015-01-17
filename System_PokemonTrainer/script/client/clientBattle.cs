@@ -1,3 +1,9 @@
+$Pokemon::DialoguePattern::Move = "%1 used %2!";
+$Pokemon::DialoguePattern::Miss = "%1's attack missed!";
+$Pokemon::DialoguePattern::Fail = "But it failed!";
+
+$Pokemon::ClientBattle::ActionQueuePeriod = 3000;
+
 function PokemonClient_BattleInit()
 {
 	if(isObject(PokemonClientBattle))
@@ -5,7 +11,7 @@ function PokemonClient_BattleInit()
 
 	%this = new ScriptObject(PokemonClientBattle)
 			{
-				dialogueLen = 0;
+				actionLen = 0;
 			};
 	%this.resetBattleData();
 	%this.resetPokemonData();
@@ -50,29 +56,31 @@ function PokemonClientBattle::resetBattleData(%this)
 	%this.stage = "";
 }
 
-function PokemonClientBattle::dialogueClear(%this)
+function PokemonClientBattle::actionClear(%this)
 {
-	for(%i = 0; %i < %this.dialogueLen; %i++)
-		%this.dialogue[%i] = "";
+	for(%i = 0; %i < %this.actionLen; %i++)
+		%this.action[%i] = "";
 
-	%this.dialogueLen = 0;
+	%this.actionLen = 0;
 }
 
-function PokemonClientBattle::dialoguePush(%this, %data)
+function PokemonClientBattle::actionPush(%this, %data)
 {
-	%this.dialogue[%this.dialogueLen] = %data;
-	return %this.dialogueLen++;
+	%this.action[%this.actionLen] = %data;
+	return %this.actionLen++;
 }
 
-function PokemonClientBattle::dialoguePop(%this)
+function PokemonClientBattle::actionPop(%this)
 {
-	if(%this.dialogueLen == 0)
+	if(%this.actionLen == 0)
 		return "";
 
-	%idx = %this.dialogueLen - 1;
-	%line = %this.dialogue[%idx];
-	%this.dialogue[%idx] = "";
-	%this.dialogueLen--;
+	%line = %this.action0;
+
+	for(%i = 1; %i < %this.actionLen; %i++)
+		%this.action[%i-1] = %this.action[%i];
+
+	%this.action[%this.actionLen--] = "";
 
 	return %line;
 }
@@ -94,6 +102,14 @@ function PokemonClientBattle::setPokemonData(%this, %side, %ind, %data, %val)
 	%ind = %this.solvePokemonIndex(%ind);
 
 	%this.pokemon[%side, %ind, %data] = %val;
+}
+
+function PokemonClientBattle::getPokemonData(%this, %side, %ind, %data)
+{
+	%side %= 2;
+	%ind = %this.solvePokemonIndex(%ind);
+
+	return %this.pokemon[%side, %ind, %data];
 }
 
 function PokemonClientBattle::setPokemon(%this, %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id)
@@ -157,4 +173,171 @@ function PokemonClientBattle::displayMoveData(%this, %ind)
 
 		PokemonBattleGui.setMove(%i, %type, %name, %pp, %ppmax);
 	}
+}
+
+function PokemonClientBattle::processAction(%this, %action)
+{
+	%type = getField(%action, 0);
+	%params = getFields(%action, 1, getFieldCount(%action)-1);
+
+	switch$(%type)
+	{
+		case "TEXT":
+			PokemonBattleGui.setDialogue(getField(%params, 0));
+
+			return 1;
+
+		case "MOVE":
+			%user = getField(%params, 0);
+			%name = getField(%params, 1);
+
+			%side = getWord(%user, 0);
+			%ind = getWord(%user, 1);
+			%uname = %this.getPokemonData(%side, %ind, "Name");
+
+			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Move, %uname, %name);
+
+			return 1;
+
+		case "MISS":
+			%user = getField(%params, 0);
+			%name = getField(%params, 1);
+
+			%side = getWord(%user, 0);
+			%ind = getWord(%user, 1);
+			%uname = %this.getPokemonData(%side, %ind, "Name");
+
+			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Miss, %uname, %name);
+
+			return 1;
+
+		case "FAIL":
+			%user = getField(%params, 0);
+			%name = getField(%params, 1);
+
+			%side = getWord(%user, 0);
+			%ind = getWord(%user, 1);
+			%uname = %this.getPokemonData(%side, %ind, "Name");
+
+			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Fail, %uname, %name);
+
+			return 1;
+
+		case "DATA":
+			%user = getField(%params, 0);
+			%data = getField(%params, 1);
+
+			%side = getWord(%user, 0);
+			%ind = getWord(%user, 1);
+
+			%dname = firstWord(%data);
+			%dval = restWords(%data);
+
+			%this.setPokemonData(%side, %ind, %dname, %dval);
+			%this.displayPokemonData();
+
+			return 0;
+	}
+	return 0;
+}
+
+function PokemonClientBattle::beginActionQueue(%this)
+{
+	%this.actionQueueIterating = true;
+
+	%this.iterateActionQueue(%this);
+}
+
+function PokemonClientBattle::iterateActionQueue(%this)
+{
+	if(isEventPending(%this.actionQueueSchedule))
+		cancel(%this.actionQueueSchedule);
+
+	PokemonBattleGui.setDialogue();
+
+	if(%this.actionLen <= 0)
+	{
+		%this.endActionQueue();
+		return;
+	}
+
+	%mod = 0;
+
+	%action = %this.actionPop();
+	if(%action !$= "")
+		%mod = %this.processAction(%action);
+
+	if(%mod >= 0)
+		%this.actionQueueSchedule = %this.schedule($Pokemon::ClientBattle::ActionQueuePeriod * %mod, iterateActionQueue);
+	else if(%mod < 0)
+		return;
+}
+
+function PokemonClientBattle::endActionQueue(%this)
+{
+	%this.actionQueueIterating = false;
+	
+	PokemonBattleGui.setDialogue();
+	//pass, we'll send some info to the server and clean things up here.
+}
+
+function PokemonClientBattle::randomiseBattle(%this)
+{
+	for(%i = 0; %i < 3; %i++)
+	{
+		%p1 = getRandom(1, 151);
+		%p2 = getRandom(1, 151);
+
+		%hp1 = getRandom(1, 999);
+		%hp2 = getRandom(1, 999);
+
+		%hpp1 = mFloor(getRandom() * %hp1);
+		%hpp2 = mFloor(getRandom() * %hp2);
+
+		%g1 = getRandom(1);
+		%g2 = getRandom(1);
+
+		%s1 = getRandom() < 0.09;
+		%s2 = getRandom() < 0.09;
+
+		%lvl1 = getRandom(1, 100);
+		%lvl2 = getRandom(1, 100);
+
+
+		%this.setPokemon(0, %i, %p1, %lvl1, %hpp1, %hp1, getRandom(), generateWord(5), %g1, %s1, getRandom(0xFFFF));
+		%this.setPokemon(1, %i, %p2, %lvl2, %hpp2, %hp2, 0, generateWord(5), %g2, %s2, getRandom(0xFFFF));
+		// ("PokemonFar" @ %i).setBitmap(getPokemonImage(%p2, %g2, %s2, false));
+		// ("PokemonClose" @ %i).setBitmap(getPokemonImage(%p1, %g1, %s1, true));
+
+		// ("PokemonOppHPBar" @ %i).Pokemon_SetHPBar(%hpp2, %hp2);
+		// ("PokemonPlayerHPBar" @ %i).Pokemon_SetHPBar(%hpp1, %hp1);
+
+		// ("PokemonOppGender" @ %i).setBitmap(getGenderSymbolImage(%g2));
+		// ("PokemonPlayerGender" @ %i).setBitmap(getGenderSymbolImage(%g1));
+
+		// ("PokemonOppLevel" @ %i).setValue(%lvl2);
+		// ("PokemonPlayerLevel" @ %i).setValue(%lvl1);
+
+		// ("PokemonPlayerHPMax" @ %i).setValue(%hp1);
+		// ("PokemonPlayerHPCurr" @ %i).setValue(%hpp1);
+
+		// ("PokemonPlayerXPBar" @ %i).setValue(getRandom());
+
+		// ("PokemonPlayerName" @ %i).setValue(generateWord(5));
+		// ("PokemonOppName" @ %i).setValue(generateWord(5));
+	}
+
+	// %stageposs = "barren blue cave darksand dirt grass green grey ice pink pokeblue pokegreen pokered rock sand snow water wetlands white yellow";
+	// %backgrounds = "mountain indoors cave1 afternoon/ocean field field indoors indoors snowy afternoon/snowy indoors indoors indoors afternoon/mountain ocean snowy ocean field indoors indoors";
+	// %word = getRandom(getWordCount(%stageposs)-1);
+	// %stage = getWord(%stageposs, %word) @ ".png";
+
+	// PokemonCloseStage.setBitmap($Pokemon::StageRoot @ "close/" @ %stage);
+	// PokemonFarStage.setBitmap($Pokemon::StageRoot @ "far/" @ %stage);
+
+	// PokemonBattleBackground.setBitmap(getBattleBackground(getWord(%backgrounds, %word)));
+
+	// %this.setBattleType(getRandom(2));
+
+	return true;
 }
