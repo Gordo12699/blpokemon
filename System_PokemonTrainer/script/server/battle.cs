@@ -103,8 +103,17 @@ function PokemonBattle::setCombatants(%this, %teamA, %teamB)
 	%this.combatantIndex[%teamB] = 1;
 	%this.combatants = 2;
 
+
 	for(%i = 0; %i < %this.combatants; %i++)
+	{
+		if(isObject(%cl = findClientByBL_ID(%this.combatant[%i].owner)))
+		{
+			%this.client[%i] = %cl;
+			%cl.battle = %this;
+		}
+
 		%this.initCombatant(%this.combatant[%i]);
+	}
 
 	// %this.entry[%teamA] = 0;
 	// %this.entry[%teamB] = 0;
@@ -460,19 +469,22 @@ function PokemonBattle::executeAction(%this, %comb)
 	PokeDebug("POKEMON BATTLE" SPC %this SPC "EXECUTING ACTION FOR" SPC %comb, %this, %comb);
 	PokeDebug("+--ACTION: " SPC %action, %this, %comb);
 
+	%r = false;
 	switch$(firstWord(%action))
 	{
 		case "MOVE":
 			%move = getWord(%action, 1);
 			%move = %comb.getMove(%move);
 			%targ = getWord(%action, 2);
-			%move.execute(%this, %comb, %targ);
+			%r = %move.execute(%this, %comb, %targ);
 		case "SWITCH":
 			%targ = getWord(%action, 1);
-			%this.switchCombatant(%comb, %targ);
+			%r = %this.switchCombatant(%comb, %targ);
 		case "NOTHING":
+			%r = true;
 			//pass
 	}
+	return %r;
 }
 
 function PokemonBattle::executeTurn(%this)

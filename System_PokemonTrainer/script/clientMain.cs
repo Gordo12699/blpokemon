@@ -6,18 +6,22 @@ $Pokemon::UIRoot = $Pokemon::ImageRoot @ "ui/";
 $Pokemon::PokemonRoot = $Pokemon::ImageRoot @ "pokemon/";
 $Pokemon::FrontRoot = $Pokemon::PokemonRoot @ "front/";
 $Pokemon::BackRoot = $Pokemon::PokemonRoot @ "back/";
+$Pokemon::IconRoot = $Pokemon::PokemonRoot @ "icons/";
+$Pokemon::ButtonRoot = $Pokemon::UIRoot @ "buttons/";
 
 function getPokemonImage(%dex, %female, %shiny, %back, %zz)
 {
-	if(%back)
+	if(%back == 1)
 		%path = $Pokemon::BackRoot;
-	else
+	else if(%back == 0)
 		%path = $Pokemon::FrontRoot;
+	else if(%back == -1)
+		%path = $Pokemon::IconRoot;
 
 	if(!isFile(%path @ %dex @ ".png"))
 	{
 		if(!%zz)
-			return getPokemonImage(%dex, %female, %shiny, %back, 1);
+			return getPokemonImage(0, %female, %shiny, %back, 1);
 		return 0;
 	}
 
@@ -31,23 +35,23 @@ function getPokemonImage(%dex, %female, %shiny, %back, %zz)
 	if(!isFile(%file))
 	{
 		if(!%zz)
-			return getPokemonImage(%dex, %female, %shiny, %back, 1);
+			return getPokemonImage(0, %female, %shiny, %back, 1);
 		return 0;
 	}
 
 	return %file;
 }
 
-function getGenderSymbolImage(%gend)
+function getGenderSymbolImage(%gend, %small)
 {
 	%gend++;
 
 	if(%gend == 0)
 		return "";
 	else if(%gend == 1)
-		return $Pokemon::UIRoot @ "symbols/male.png";
+		return $Pokemon::UIRoot @ "symbols/male" @ (%small ? "general" : "") @ ".png";
 	else if(%gend == 2)
-		return $Pokemon::UIRoot @ "symbols/female.png";
+		return $Pokemon::UIRoot @ "symbols/female" @ (%small ? "general" : "") @ ".png";
 
 	return "";
 }

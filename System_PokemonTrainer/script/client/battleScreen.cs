@@ -109,27 +109,33 @@ function PokemonBattleGui::setBattleType(%this, %type)
 {
 	switch(%type)
 	{
+		case -1:
+			for(%i = 0; %i < 3; %i++)
+			{
+				%this.setPokemon(0, %i, -1);
+				%this.setPokemon(1, %i, -1);
+			}
+
 		case 1:
 			for(%i = 0; %i < 3; %i++)
 			{
 				%this.setPokemon(0, %i, (%i != 1 ? "show" : -1));
 				%this.setPokemon(1, %i, (%i != 1 ? "show" : -1));
 			}
-			$Pokemon::Client::BattleType = 1;
+
 		case 2:
 			for(%i = 0; %i < 3; %i++)
 			{
 				%this.setPokemon(0, %i, "show");
 				%this.setPokemon(1, %i, "show");
 			}
-			$Pokemon::Client::BattleType = 2;
+
 		default:
 			for(%i = 0; %i < 3; %i++)
 			{
 				%this.setPokemon(0, %i, (%i == 1 ? "show" : -1));
 				%this.setPokemon(1, %i, (%i == 1 ? "show" : -1));
 			}
-			$Pokemon::Client::BattleType = 0;
 	}
 	return true;
 }
@@ -195,6 +201,46 @@ function PokemonBattleGui::randomiseBattle(%this)
 	return true;
 }
 
+function solveBattleStage(%stage, %bg)
+{
+	%stageposs = "barren blue cave darksand dirt grass green grey ice pink pokeblue pokegreen pokered rock sand snow water wetlands white yellow";
+	%backgrounds = "mountain indoors cave1 afternoon/ocean field field indoors indoors snowy afternoon/snowy indoors indoors indoors afternoon/mountain ocean snowy ocean field indoors indoors";
+	
+	if((%pos = searchWords(%stageposs, %stage)) == -1)
+	{
+		%stage = "grey";
+		%pos = 7;
+	}
+
+	if(%bg $= "" || !isFile(getBattleBackground(%bg)))
+		%bg = getWord(%backgrounds, %pos);
+
+	return %stage SPC %bg;
+}
+
+function PokemonBattleGui::setBattleStage(%this, %stage, %bg)
+{
+	%stageposs = "barren blue cave darksand dirt grass green grey ice pink pokeblue pokegreen pokered rock sand snow water wetlands white yellow";
+	%backgrounds = "mountain indoors cave1 afternoon/ocean field field indoors indoors snowy afternoon/snowy indoors indoors indoors afternoon/mountain ocean snowy ocean field indoors indoors";
+	
+	if((%pos = searchWords(%stageposs, %stage)) == -1)
+	{
+		%stage = "grey";
+		%pos = 7;
+	}
+
+	if(%bg $= "" || !isFile(%bgf = getBattleBackground(%bg)))
+	{
+		%bg = getWord(%backgrounds, %pos);
+		%bgf = getBattleBackground(%bg);
+	}
+
+	PokemonCloseStage.setBitmap($Pokemon::StageRoot @ "close/" @ %stage);
+	PokemonFarStage.setBitmap($Pokemon::StageRoot @ "far/" @ %stage);
+
+	PokemonBattleBackground.setBitmap(%bgf);
+}
+
 function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8)
 {
 	for(%i = 1; %i <= 8; %i++)
@@ -214,4 +260,45 @@ function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a
 		PokemonBattleDialogue.setVisible(true);
 
 	PokemonBattleDialogueText.setValue(%text);
+}
+
+function PokemonBattleGui::setMode(%this, %mode)
+{
+	for(%i = 0; %i < 4; %i++)
+		%m[%i] = false;
+	
+	%m[%mode] = true;
+
+	PokemonActionMenuContent.setVisible(%m0);
+	PokemonActionMoveContent.setVisible(%m1);
+	PokemonActionMoveSummaryContent.setVisible(%m2);
+	PokemonActionPartyContent.setVisible(%m3);
+}
+
+function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax)
+{
+	%i %= 6;
+
+	%parent = ("PokemonParty" @ %i);
+	if(!isObject(%parent))
+		return;
+
+	%ct = %parent.getCount();
+	for(%i = 0; %i < %ct; %i++)
+		%parent.getObject(%i).setVisible(%dex >= 0);
+
+	if(%dex < 0)
+	{
+		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn_i");
+		return;
+	}
+
+	("PokemonPartyName" @ %i).setText(%name);
+	("PokemonPartyIcon" @ %i).setBitmap(getPokemonImage(%dex, %gender, %shiny, -1));
+	("PokemonPartyHPBar" @ %i).Pokemon_SetHPBar(%hpcurr, %hpmax);
+	("PokemonPartyHPText" @ %i).setText(%hpcurr @ "/" @ %hpmax);
+	("PokemonPartyLevel" @ %i).setText(%level);
+
+	if(%hpcurr <= 0)
+		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn_fnt");
 }

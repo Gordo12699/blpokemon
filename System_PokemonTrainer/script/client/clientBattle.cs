@@ -15,7 +15,11 @@ function PokemonClient_BattleInit()
 			};
 	%this.resetBattleData();
 	%this.resetPokemonData();
+	%this.resetPartyData();
 
+	%this.displayPokemonData();
+	%this.displayBattleData();
+	%this.displayPartyData();
 
 	$Pokemon::ClientBattle = %this;
 
@@ -53,7 +57,21 @@ function PokemonClientBattle::resetPokemonData(%this)
 function PokemonClientBattle::resetBattleData(%this)
 {
 	%this.type = 0;
-	%this.stage = "";
+	%this.stage = "grey";
+}
+
+function PokemonClientBattle::resetPartyData(%this)
+{
+	for(%i = 0; %i < 6; %i++)
+	{
+		%this.party[%i, "Name"] = -1;
+		%this.party[%i, "Dex"] = -1;
+		%this.party[%i, "Level"] = 0;
+		%this.party[%i, "Gender"] = -1;
+		%ths.party[%i, "Shiny"] = false;
+		%this.party[%i, "HPCurr"] = 0;
+		%this.party[%i, "HPMax"] = 0;
+	}
 }
 
 function PokemonClientBattle::actionClear(%this)
@@ -112,6 +130,15 @@ function PokemonClientBattle::getPokemonData(%this, %side, %ind, %data)
 	return %this.pokemon[%side, %ind, %data];
 }
 
+function PokemonClientBattle::setBattleData(%this, %type, %stage)
+{
+	if(%type !$= "")
+		%this.type = %type % 3;
+
+	if(%stage !$= "")
+		%this.stage = firstWord(solveBattleStage(%stage));
+}
+
 function PokemonClientBattle::setPokemon(%this, %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id)
 {
 	%side %= 2;
@@ -132,6 +159,19 @@ function PokemonClientBattle::setPokemonMove(%this, %side, %ind, %move, %name, %
 	%this.setPokemonData(%side, %ind, "MoveType_" @ %move, %type);
 	%this.setPokemonData(%side, %ind, "MovePP_" @ %move, %pp);
 	%this.setPokemonData(%this, %ind, "MovePPMax_" @ %move, %ppmax);
+}
+
+function PokemonClientBattle::setPartyPokemon(%this, %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax)
+{
+	%i %= 6;
+
+	%this.party[%i, "Name"] = %name;
+	%this.party[%i, "Dex"] = %dex;
+	%this.party[%i, "Level"] = %level;
+	%this.party[%i, "Gender"] = %gender;
+	%this.party[%i, "Shiny"] = %shiny;
+	%this.party[%i, "HPCurr"] = %hpcurr;
+	%this.party[%i, "HPMax"] = %hpmax;
 }
 
 function PokemonClientBattle::displayPokemonData(%this)
@@ -173,6 +213,18 @@ function PokemonClientBattle::displayMoveData(%this, %ind)
 
 		PokemonBattleGui.setMove(%i, %type, %name, %pp, %ppmax);
 	}
+}
+
+function PokemonClientBattle::displayBattleData(%this)
+{
+	PokemonBattleGui.setBattleType(%this.type);
+	PokemonBattleGui.setBattleStage(%this.stage);
+}
+
+function PokemonClientBattle::displayPartyData(%this)
+{
+	for(%i = 0; %i < 6; %i++)
+		PokemonBattleGui.setPartySlot(%i, %this.party[%i, "Name"], %this.party[%i, "Dex"], %this.party[%i, "Level"], %this.party[%i, "Gender"], %this.party[%i, "Shiny"], %this.party[%i, "HPCurr"], %this.party[%i, "HPMax"]);
 }
 
 function PokemonClientBattle::processAction(%this, %action)
