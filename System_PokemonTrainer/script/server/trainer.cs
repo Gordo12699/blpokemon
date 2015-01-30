@@ -179,6 +179,62 @@ function PokemonTrainer::handleAddPokemon(%this, %pokemon)
 	return false;
 }
 
+function GameConnection::getTrainer(%this)
+{
+	if(isObject(%this.trainer))
+		return %this.trainer;
+
+	return -1;
+}
+
+function GameConnection::getPartyPokemon(%this, %i)
+{
+	%t = %this.getTrainer();
+
+	if(!isObject(%t))
+		return -1;
+
+	%i %= 6;
+
+	if(%i > %t.party.getCount()-1)
+		return -1;
+
+	return %t.party.getObject(%i);
+}
+
+function GameConnection::getBoxPokemon(%this, %i)
+{
+	%t = %this.getTrainer();
+
+	if(!isObject(%t))
+		return -1;
+
+	if(%i > %t.box.getCount()-1)
+		return -1;
+
+	return %t.box.getObject(%i);
+}
+
+function GameConnection::getNumPartyPokemon(%this)
+{
+	%t = %this.getTrainer();
+
+	if(!isObject(%t))
+		return -1;
+
+	return %t.party.getCount();
+}
+
+function GameConnection::getNumBoxPokemon(%this)
+{
+	%t = %this.getTrainer();
+
+	if(!isObject(%t))
+		return -1;
+
+	return %t.box.getCount();
+}
+
 package Pokemon_Trainer
 {
 	function GameConnection::autoAdminCheck(%this)
@@ -195,6 +251,14 @@ package Pokemon_Trainer
 		%this.trainer = %trainer;
 
 		return %r;
+	}
+
+	function PokemonTrainer::onAdd(%this)
+	{
+		%cl = findClientByBL_ID(%this.bl_id);
+
+		if(isObject(%cl))
+			%cl.trainer = %this;
 	}
 };
 activatePackage(Pokemon_Trainer);
