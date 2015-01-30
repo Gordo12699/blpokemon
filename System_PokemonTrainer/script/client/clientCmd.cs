@@ -19,3 +19,11 @@ function clientCmdPokemon_EnqueueAction(%action)
 
 	PokemonClientBattle.actionPush(%action);
 }
+
+function clientCmdPokemon_SetPokemon(%side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id)
+{
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	PokemonClientBattle.setPokemon(%side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id);
+}

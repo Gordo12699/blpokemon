@@ -62,3 +62,31 @@ function serverCmdPokemon_BattleReady(%this, %type)
 			}
 	}
 }
+
+function GameConnection::pushPokemon(%this, %pokemon, %side, %ind)
+{
+	if(!isPokemon(%pokemon))
+		return;
+
+	%dex = %pokemon.data.dexNum;
+	%level = %pokemon.getStat("Level");
+	%name = %pokemon.nickname;
+	%gender = %pokemon.gender - 1;
+	%shiny = %pokemon.shiny;
+	%id = %pokemon.getID();
+
+	if(%side)
+	{
+		%hp = %pokemon.getStat("HP"); / %pokemon.getStat("HPMax");
+		%hpmax = "";
+	}
+	else
+	{
+		%hp = %pokemon.getStat("HP");
+		%hpmax = %pokemon.getStat("HPMax");
+
+		%xp = %pokemon.getStat("XP");
+	}
+
+	commandToClient(%this, 'Pokeon_SetPokemon', %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id);
+}

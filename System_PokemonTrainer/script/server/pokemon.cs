@@ -80,6 +80,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				statSpDef = -1;
 				statSpeed = -1;
 				statEff = -1;
+				statXP = 0;
 
 				ivAtk = 0;
 				ivDef = 0;
