@@ -27,3 +27,11 @@ function clientCmdPokemon_SetPokemon(%side, %ind, %dex, %level, %hp, %hpmax, %xp
 
 	PokemonClientBattle.setPokemon(%side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id);
 }
+
+function clientCmdPokemon_UpdateBattleDisplay()
+{
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	PokemonClientBattle.updateBattleDisplay();
+}

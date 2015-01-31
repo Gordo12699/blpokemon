@@ -227,6 +227,12 @@ function PokemonClientBattle::displayPartyData(%this)
 		PokemonBattleGui.setPartySlot(%i, %this.party[%i, "Name"], %this.party[%i, "Dex"], %this.party[%i, "Level"], %this.party[%i, "Gender"], %this.party[%i, "Shiny"], %this.party[%i, "HPCurr"], %this.party[%i, "HPMax"]);
 }
 
+function PokemonClientBattle::updateBattleDisplay(%this)
+{
+	%this.displayBattleData();
+	%this.displayPokemonData();
+}
+
 function PokemonClientBattle::processAction(%this, %action)
 {
 	%type = getField(%action, 0);
