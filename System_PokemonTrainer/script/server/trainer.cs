@@ -63,7 +63,7 @@ function Trainer_New(%bl_id)
 				invEntries = 0;
 			};
 
-	%party = new ScriptGroup("PokemonParty_" @ %bl_id);
+	%party = new ScriptGroup("PokemonParty_" @ %bl_id)
 				{
 					class = "PokemonParty";
 					superClass = "PokemonGroup";
@@ -71,7 +71,7 @@ function Trainer_New(%bl_id)
 					bl_id = %bl_id;
 					trainer = %this;
 				};
-	%box = new ScriptGroup("PokemonBox_" @ %bl_id);
+	%box = new ScriptGroup("PokemonBox_" @ %bl_id)
 				{
 					class = "PokemonBox";
 					superClass = "PokemonGroup";
@@ -86,6 +86,21 @@ function Trainer_New(%bl_id)
 	%this.box = %box;
 
 	return %this;
+}
+
+function PokemonTrainer::onAdd(%this)
+{
+	%cl = findClientByBL_ID(%this.bl_id);
+
+	if(isObject(%cl))
+		%cl.trainer = %this;
+
+	MissionCleanup.add(%this);
+
+	if(!isObject(PokemonTrainerGroup))
+		new SimGroup(PokemonTrainerGroup);
+
+	PokemonTrainerGroup.add(%this);
 }
 
 function PokemonTrainer::addInvEntry(%this, %name)
@@ -251,14 +266,6 @@ package Pokemon_Trainer
 		%this.trainer = %trainer;
 
 		return %r;
-	}
-
-	function PokemonTrainer::onAdd(%this)
-	{
-		%cl = findClientByBL_ID(%this.bl_id);
-
-		if(isObject(%cl))
-			%cl.trainer = %this;
 	}
 };
 activatePackage(Pokemon_Trainer);

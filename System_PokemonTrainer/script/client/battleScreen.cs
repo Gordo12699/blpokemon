@@ -284,8 +284,8 @@ function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender,
 		return;
 
 	%ct = %parent.getCount();
-	for(%i = 0; %i < %ct; %i++)
-		%parent.getObject(%i).setVisible(%dex >= 0);
+	for(%j = 0; %j < %ct; %j++)
+		%parent.getObject(%j).setVisible(%dex >= 0);
 
 	if(%dex < 0)
 	{
@@ -298,7 +298,17 @@ function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender,
 	("PokemonPartyHPBar" @ %i).Pokemon_SetHPBar(%hpcurr, %hpmax);
 	("PokemonPartyHPText" @ %i).setText(%hpcurr @ "/" @ %hpmax);
 	("PokemonPartyLevel" @ %i).setText(%level);
+	%o = ("PokemonPartyGender" @ %i);
+	if(%gender != -1)
+	{
+		%o.setBitmap(getGenderSymbolImage(%gender, 1));
+		%o.setVisible(true);
+	}
+	else
+		%o.setVisible(false);
 
 	if(%hpcurr <= 0)
 		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn_fnt");
+	else
+		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn");
 }

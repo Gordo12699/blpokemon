@@ -68,6 +68,8 @@ function GameConnection::pushPokemon(%this, %pokemon, %side, %ind)
 	if(!isPokemon(%pokemon))
 		return;
 
+	// echo("f");
+
 	%dex = %pokemon.data.dexNum;
 	%level = %pokemon.getStat("Level");
 	%name = %pokemon.nickname;
@@ -77,18 +79,64 @@ function GameConnection::pushPokemon(%this, %pokemon, %side, %ind)
 
 	if(%side)
 	{
-		%hp = %pokemon.getStat("HP"); / %pokemon.getStat("HPMax");
+		// echo("SIDE 1");
+		%hp = %pokemon.getStat("HP") / %pokemon.getStat("MaxHP");
 		%hpmax = "";
 	}
 	else
 	{
+		// echo("SIDE 0");
 		%hp = %pokemon.getStat("HP");
-		%hpmax = %pokemon.getStat("HPMax");
+		%hpmax = %pokemon.getStat("MaxHP");
 
 		%xp = %pokemon.getStat("XP");
 	}
 
-	commandToClient(%this, 'Pokeon_SetPokemon', %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id);
+	// echo(%side SPC %ind SPC %dex SPC %level SPC %hp SPC %hpmax SPC %xp SPC %name SPC %gender SPC %shiny SPC %id);
+
+	commandToClient(%this, 'Pokemon_SetPokemon', %side, %ind, %dex, %level, %hp, %hpmax, %xp, %name, %gender, %shiny, %id);
+
+	for(%i = 0; %i < 4; %i++)
+	{
+		%move = %pokemon.getMove(%i);
+		%pp = %pokemon.getPP(%i);
+		%ppmax = %pokemon.getMaxPP(%i);
+
+		commandToClient(%this, 'Pokemon_SetPokemonMove', %side, %ind, %i, %move.name, %move.type, %pp, %ppmax);
+	}
+}
+
+function GameConnection::pushParty(%this, %trainer)
+{
+	if(!isObject(%trainer) || %trainer.class !$= "PokemonTrainer")
+		return;
+
+	%ct = %trainer.party.getCount();
+	for(%i = 0; %i < 6; %i++)
+	{
+		if(%i >= %ct)
+		{
+			commandToClient(%this, 'Pokemon_SetPartyPokemon', %i, "", -1);
+			continue;
+		}
+
+		%p = %trainer.party.getObject(%i);
+		if(!isObject(%p))
+		{
+			commandToClient(%this, 'Pokemon_SetPartyPokemon', %i, "", -1);
+			continue;
+		}
+
+		%name = %p.nickname;
+		%dex = %p.data.dexNum;
+		%level = %p.getStat("Level");
+		%gender = %p.gender - 1;
+		%shiny = %p.shiny;
+		%hpcurr = %p.getStat("HP");
+		%hpmax = %p.getStat("MaxHP");
+
+		commandToClient(%this, 'Pokemon_SetPartyPokemon', %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax);
+	}
 }
 
 function PokemonBattle::pushCombatants(%this)

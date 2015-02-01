@@ -17,9 +17,8 @@ function PokemonClient_BattleInit()
 	%this.resetPokemonData();
 	%this.resetPartyData();
 
-	%this.displayPokemonData();
-	%this.displayBattleData();
-	%this.displayPartyData();
+	%this.updateBattleDisplay();
+	%this.updateBattleGuiDisplay();
 
 	$Pokemon::ClientBattle = %this;
 
@@ -224,13 +223,21 @@ function PokemonClientBattle::displayBattleData(%this)
 function PokemonClientBattle::displayPartyData(%this)
 {
 	for(%i = 0; %i < 6; %i++)
+	{
+		// echo(%this.party[%i, "Name"]);
 		PokemonBattleGui.setPartySlot(%i, %this.party[%i, "Name"], %this.party[%i, "Dex"], %this.party[%i, "Level"], %this.party[%i, "Gender"], %this.party[%i, "Shiny"], %this.party[%i, "HPCurr"], %this.party[%i, "HPMax"]);
+	}
 }
 
 function PokemonClientBattle::updateBattleDisplay(%this)
 {
 	%this.displayBattleData();
 	%this.displayPokemonData();
+}
+
+function PokemonClientBattle::updateBattleGuiDisplay(%this)
+{
+	%this.displayPartyData();
 }
 
 function PokemonClientBattle::processAction(%this, %action)

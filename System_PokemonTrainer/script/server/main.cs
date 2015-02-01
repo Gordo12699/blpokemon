@@ -6,5 +6,6 @@ exec("./storage.cs");
 exec("./trainer.cs");
 exec("./pokemon.cs");
 exec("./battle.cs");
+exec("./battleComms.cs");
 
 $Pokemon::Exec::Server = true;
