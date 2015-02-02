@@ -106,10 +106,11 @@ function PokemonBattle::setCombatants(%this, %teamA, %teamB)
 
 	for(%i = 0; %i < %this.combatants; %i++)
 	{
-		if(isObject(%cl = findClientByBL_ID(%this.combatant[%i].owner)))
+		if(isObject(%cl = findClientByBL_ID(%this.combatant[%i].owner)) && !%h[%cl])
 		{
-			%this.client[%i] = %cl;
+			%this.clients = trim(%this.clients SPC %cl);
 			%cl.battle = %this;
+			%h[%cl] = true;
 		}
 
 		%this.initCombatant(%this.combatant[%i]);
