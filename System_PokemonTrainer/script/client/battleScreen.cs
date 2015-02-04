@@ -2,6 +2,13 @@ $Pokemon::HPProfile0 = PokemonHPBarGreenProfile;
 $Pokemon::HPProfile1 = PokemonHPBarYellowProfile;
 $Pokemon::HPProfile2 = PokemonHPBarRedProfile;
 
+$Pokemon::ControlMode0 = PokemonActionMenuContent;
+$Pokemon::ControlMode1 = PokemonActionMoveContent;
+$Pokemon::ControlMode2 = PokemonActionMoveSummaryContent;
+$Pokemon::ControlMode3 = PokemonActionPartyContent;
+$Pokemon::ControlMode4 = PokemonActionWaitingContent;
+$Pokemon::ControlModes = 5;
+
 function GuiProgressCtrl::Pokemon_SetHPBar(%this, %hp, %maxHP)
 {
 	if(%hp < 0)
@@ -264,15 +271,29 @@ function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a
 
 function PokemonBattleGui::setMode(%this, %mode)
 {
-	for(%i = 0; %i < 4; %i++)
-		%m[%i] = false;
-	
-	%m[%mode] = true;
+	if(%mode == %this.currMode && %this.currMode !$= "")
+		return;
 
-	PokemonActionMenuContent.setVisible(%m0);
-	PokemonActionMoveContent.setVisible(%m1);
-	PokemonActionMoveSummaryContent.setVisible(%m2);
-	PokemonActionPartyContent.setVisible(%m3);
+	for(%i = 0; %i < $Pokemon::ControlModes; %i++)
+	{
+		if(%i == %mode)
+		{
+			$Pokemon::ControlMode[%i].setVisible(true);
+			$Pokemon::ControlMode[%i].pokemonActive();
+
+			%gotOne = true;
+		}
+		else
+		{
+			$Pokemon::ControlMode[%i].setVisible(false);
+
+			if(%i == %this.currMode)
+				$Pokemon::ControlMode[%i].pokemonInactive();
+		}
+	}
+
+
+	%this.currMode = (%gotOne ? %mode : -1);
 }
 
 function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax)
