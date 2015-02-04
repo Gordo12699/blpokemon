@@ -6,6 +6,10 @@ function clientCmdPokemon_InitBattle(%type, %stage)
 
 	%this.setBattleData(%type, %stage);
 
+	%this.updateBattleDisplay();
+
+	Canvas.pushDialog(PokemonBattleContent);
+
 	commandToServer('Pokemon_BattleReady', 0);
 }
 
