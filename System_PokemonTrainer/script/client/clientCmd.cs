@@ -4,13 +4,20 @@ function clientCmdPokemon_InitBattle(%type, %stage)
 
 	%this = PokemonClient_BattleInit();
 
+	PokemonGUI_SetMode(4);
+
 	%this.setBattleData(%type, %stage);
 
 	%this.updateBattleDisplay();
 
-	Canvas.pushDialog(PokemonBattleContent);
-
 	commandToServer('Pokemon_BattleReady', 0);
+}
+
+function clientCmdPokemon_SetBattleMode(%mode)
+{
+	PokemonGUI_SetMode(%mode);
+
+	PokeDebug("GOT Pokemon_SetBattleMode" SPC %mode);
 }
 
 function clientCmdPokemon_DirectDialogue(%text, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8)

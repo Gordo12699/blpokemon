@@ -17,6 +17,9 @@ function PokemonClient_BattleInit()
 	%this.resetPokemonData();
 	%this.resetPartyData();
 
+	Canvas.pushDialog(PokemonBattleControl);
+	PokemonBattleWindowControl.centreToRes();
+
 	%this.updateBattleDisplay();
 	%this.updateBattleGuiDisplay();
 

@@ -63,3 +63,37 @@ function PokemonActionWaitingContent::pokemonInactive(%this)
 	if(isEventPending(%this.sched))
 		cancel(%this.sched);
 }
+
+function GuiControl::centreInParent(%this)
+{
+	%e = %this.getExtent();
+	%w = getWord(%e, 0);
+	%h = getWord(%e, 1);
+
+	%g = %this.getGroup();
+	%r = (isObject(%g) ? %g.getExtent() : getRes());
+	%rw = getWord(%r, 0);
+	%rh = getWord(%r, 1);
+
+	%nX = %rw / 2 - %w / 2;
+	%nY = %rh / 2 - %h / 2;
+
+	%this.resize(%nX, %nY, %w, %h);
+}
+
+function GuiControl::centreToRes(%this)
+{
+	%e = %this.getExtent();
+	%w = getWord(%e, 0);
+	%h = getWord(%e, 1);
+
+	%g = %this.getGroup();
+	%r = getRes();
+	%rw = getWord(%r, 0);
+	%rh = getWord(%r, 1);
+
+	%nX = %rw / 2 - %w / 2;
+	%nY = %rh / 2 - %h / 2;
+
+	%this.resize(%nX, %nY, %w, %h);
+}
