@@ -28,6 +28,15 @@ function PokemonClient_BattleInit()
 	return %this;
 }
 
+function PokemonClient_BattleEnd()
+{
+	if(isObject(%this = PokemonClientBattle))
+		%this.delete(); //Don't need to bother cleaning up the GUI probably.
+
+	Canvas.popDialog(PokemonBattleControl);
+	$Pokemon::ClientBattle = -1;
+}
+
 function PokemonClientBattle::resetPokemonData(%this)
 {
 	for(%i = 0; %i < 3; %i++)

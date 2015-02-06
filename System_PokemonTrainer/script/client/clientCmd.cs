@@ -109,3 +109,32 @@ function clientCmdPokemon_DisplayMoveData(%ind)
 
 	PokeDebug("GOT Pokemon_DisplayMoveData" SPC %ind);
 }
+
+function clientCmdPokemon_ReportError(%err, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7)
+{
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	switch(%err)
+	{
+		case -1: //Terminal error, stop the battle.
+			PokemonClient_BattleEnd();
+
+		case 0: //Generic error, set mode to zero (action menu) and display the given message
+			PokemonGUI_SetMode(0);
+
+			if(%a0 !$= "")
+				PokemonBattleGui.setDialogue(%a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7);
+
+		case 1: //Generic error, return client to a specific mode and display the given message
+			PokemonGUI_SetMode(%a0);
+
+			if(%a1 !$= "")
+				PokemonBattleGui.setDialogue(%a1, %a2, %a3, %a4, %a5, %a6, %a7);
+
+		default:
+			//pass?
+	}
+
+	PokeDebug("GOT Pokemon_ReportError" SPC %err SPC %a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5 SPC %a6 SPC %a7);
+}
