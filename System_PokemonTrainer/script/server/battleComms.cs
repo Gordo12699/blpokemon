@@ -106,7 +106,46 @@ function serverCmdPokemon_BattleReady(%this, %type)
 				%this.schedule(100, updateClientDisplays);
 				%this.schedule(500, Begin);
 			}
+
+		case 2:
+			if(%this.waitType != %type)
+				return;
+
+			%battle.waitingClients--;
+			%this.waitType = -1;
+
+			if(%battle.waitingClients == 0)
+			{
+				%this.updateClientDisplays();
+				%this.schedule(500, startTurn);
+			}
 	}
+}
+
+function serverCmdPokemon_SetAction(%this, %id, %action)
+{
+	if(!isObject(%this.battle))
+		return;
+
+	if(!isObject(%id))
+	{
+		commandToClient(%this, 'Pokemon_ReportError', 0, "Error finding specified combatant");
+		return;
+	}
+
+	if(%id.owner != %this.getBLID())
+	{
+		commandToClient(%this, 'Pokemon_ReportError', 0, "Combatant owner does not match");
+		return;
+	}
+
+	if((%err = %this.setAction(%id, %action)) <= 0)
+	{
+		commandToClient(%this, 'Pokemon_ReportError', 0, "Illegal action: %1", $Pokemon::ActionError::Text[%err]);
+		return;
+	}
+
+	//for now we won't do anything if it worked i guess
 }
 
 function GameConnection::pushPokemon(%this, %pokemon, %side, %ind)
@@ -207,7 +246,19 @@ function PokemonBattle::pushCombatants(%this)
 	}
 }
 
-function PokemomBattle::commandToClients(%this, %cmd, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a10, %a11, %a12, %a13, %a14, %a15)
+function PokemonBattle::pushParties(%this)
+{
+	%ct = getWordCount(%this.clients);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%cl = getWord(%this.clients, %i);
+		if(!isObject(%cl) || !isObject(%cl.trainer))
+			continue;
+		%cl.pushParty(%cl.trainer);
+	}
+}
+
+function PokemonBattle::commandToClients(%this, %cmd, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a10, %a11, %a12, %a13, %a14, %a15)
 {
 	%ct = getWordCount(%this.clients);
 	for(%i = 0; %i < %ct; %i++)
@@ -219,7 +270,40 @@ function PokemomBattle::commandToClients(%this, %cmd, %a0, %a1, %a2, %a3, %a4, %
 	}
 }
 
+function PokemonBattle::setWaitingType(%this, %id)
+{
+	%this.waitingClients = 0;
+
+	%ct = getWordCount(%this.clients);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%cl = getWord(%this.clients, %i);
+		if(!isObject(%cl))
+			continue;
+		%cl.waitType = %id;
+
+		if(%id >= 0)
+			%this.waitingClients++;
+	}
+}
+
 function PokemonBattle::updateClientDisplays(%this)
 {
 	%this.commandToClients('Pokemon_UpdateAllBattleDisplay');
+}
+
+function PokemonBattle::sendClientRequest(%this, %req)
+{
+	switch(%req)
+	{
+		case 0:
+			%this.commandToClients('Pokemon_SetBattleMode', 0);
+			%this.setWaitingType(1);
+
+		case 1:
+			%this.commandToClients('Pokemon_SetBattleMode', 4);
+			%this.commandToClients('Pokemon_ActionStart', 2);
+
+			%this.setWaitingType(2);
+	}
 }

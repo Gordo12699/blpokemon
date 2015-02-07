@@ -8,18 +8,29 @@ function PokemonGUI_SetMode(%i)
 
 function PokemonMoveMouse::onMouseDown(%this, %mod, %pos, %click)
 {
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	if(PokemonClientBattle.currentCombatant <= 0)
+		return;
+
 	//Send battle command.
 	%slot = %this.getGroup().slot;
 
-	echo("CLIENT MOVE PRESS -" SPC %slot SPC "PARAMS:" SPC %mod SPC %pos SPC %click);
+	
+
+	PokeDebug("CLIENT MOVE PRESS -" SPC %slot SPC "PARAMS:" SPC %mod SPC %pos SPC %click);
 }
 
 function PokemonPartyMouseEvent::onMouseDown(%this, %mod, %pos, %click)
 {
+	if(!isObject(PokemonClientBattle))
+		return;
+		
 	//Send battle command.
 	%slot = %this.getGroup().slot;
 
-	echo("CLIENT PARTY PRESS -" SPC %slot SPC "PARAMS:" SPC %mod SPC %pos SPC %click);
+	PokeDebug("CLIENT PARTY PRESS -" SPC %slot SPC "PARAMS:" SPC %mod SPC %pos SPC %click);
 }
 
 function GuiControl::pokemonActive(%this)

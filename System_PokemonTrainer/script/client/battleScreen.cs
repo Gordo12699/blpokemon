@@ -9,6 +9,8 @@ $Pokemon::ControlMode3 = PokemonActionPartyContent;
 $Pokemon::ControlMode4 = PokemonActionWaitingContent;
 $Pokemon::ControlModes = 5;
 
+$Pokemon::DialogueTime = 5000;
+
 function GuiProgressCtrl::Pokemon_SetHPBar(%this, %hp, %maxHP)
 {
 	if(%hp < 0)
@@ -250,6 +252,9 @@ function PokemonBattleGui::setBattleStage(%this, %stage, %bg)
 
 function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8)
 {
+	if(isEventPending(%this.dialogueClear))
+		cancel(%this.dialogueClear);
+
 	for(%i = 1; %i <= 8; %i++)
 	{
 		if(%a[%i] $= "")
@@ -267,6 +272,8 @@ function PokemonBattleGui::setDialogue(%this, %text, %a1, %a2, %a3, %a4, %a5, %a
 		PokemonBattleDialogue.setVisible(true);
 
 	PokemonBattleDialogueText.setValue(%text);
+
+	%this.dialogueClear = %this.schedule($Pokemon::DialogueTime, setDialogue, "");
 }
 
 function PokemonBattleGui::setMode(%this, %mode)

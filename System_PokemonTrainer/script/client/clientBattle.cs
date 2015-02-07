@@ -12,6 +12,7 @@ function PokemonClient_BattleInit()
 	%this = new ScriptObject(PokemonClientBattle)
 			{
 				actionLen = 0;
+				actionRequestType = -1;
 			};
 	%this.resetBattleData();
 	%this.resetPokemonData();
@@ -112,6 +113,16 @@ function PokemonClientBattle::actionPop(%this)
 	%this.action[%this.actionLen--] = "";
 
 	return %line;
+}
+
+function PokemonClientBattle::actionSet(%this, %i, %data)
+{
+	%this.action[%i] = %data;
+
+	if(%i >= %this.actionLen)
+		%this.actionLen = %i + 1;
+
+	return %this.actionLen;
 }
 
 function PokemonClientBattle::solvePokemonIndex(%this, %ind)
@@ -265,7 +276,7 @@ function PokemonClientBattle::processAction(%this, %action)
 			return 1;
 
 		case "MOVE":
-			%user = getField(%params, 0);
+			%user = %this.findPokemonByID(getField(%params, 0));
 			%name = getField(%params, 1);
 
 			%side = getWord(%user, 0);
@@ -277,7 +288,7 @@ function PokemonClientBattle::processAction(%this, %action)
 			return 1;
 
 		case "MISS":
-			%user = getField(%params, 0);
+			%user = %this.findPokemonByID(getField(%params, 0));
 			%name = getField(%params, 1);
 
 			%side = getWord(%user, 0);
@@ -289,7 +300,7 @@ function PokemonClientBattle::processAction(%this, %action)
 			return 1;
 
 		case "FAIL":
-			%user = getField(%params, 0);
+			%user = %this.findPokemonByID(getField(%params, 0));
 			%name = getField(%params, 1);
 
 			%side = getWord(%user, 0);
@@ -301,7 +312,7 @@ function PokemonClientBattle::processAction(%this, %action)
 			return 1;
 
 		case "DATA":
-			%user = getField(%params, 0);
+			%user = %this.findPokemonByID(getField(%params, 0));
 			%data = getField(%params, 1);
 
 			%side = getWord(%user, 0);
@@ -355,7 +366,11 @@ function PokemonClientBattle::endActionQueue(%this)
 	%this.actionQueueIterating = false;
 	
 	PokemonBattleGui.setDialogue();
-	//pass, we'll send some info to the server and clean things up here.
+	
+	if(%this.actionRequestType != -1)
+		commandToServer('Pokemon_BattleReady', %this.actionRequestType);
+
+	%this.actionRequestType = -1;
 }
 
 function PokemonClientBattle::randomiseBattle(%this)
@@ -417,4 +432,19 @@ function PokemonClientBattle::randomiseBattle(%this)
 	// %this.setBattleType(getRandom(2));
 
 	return true;
+}
+
+function PokemonClientBattle::findPokemonByID(%this, %id)
+{
+	for(%side = 0; %side < 2; %side++)
+	{
+		for(%ind = 0; %ind < 3; %ind++)
+		{
+			%pid = %this.getPokemonData(%side, %ind, "ID");
+			if(%pid == %id)
+				return %side SPC %id;
+		}
+	}
+
+	return -1;
 }

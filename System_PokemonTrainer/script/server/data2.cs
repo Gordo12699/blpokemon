@@ -482,7 +482,7 @@ function PokemonList::addFromStrings(%this, %data, %moves, %learns, %dex, %evolv
 	return %this.newPokemon(%name, %type, %baseStats, %catchRate, %desc, %evs, %evolve, %passDex, %moves, %learns);
 }
 
-function ddd()
+function pkmnDebugPokemon()
 {
 	PokemonData_Init();
 
@@ -494,8 +494,8 @@ function ddd()
 	if(isObject($bulb2))
 		$bulb2.delete();
 
-	$bulb = Pokemon_New(PokemonBulbasaurData, 10293, 10293);
-	$bulb2 = Pokemon_New(PokemonBulbasaurData, 10293, 10293);
+	$bulb = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
+	$bulb2 = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
 
 	$bulb.setMove(0, PokemonMoveRazor_Leaf);
 	$bulb2.setMove(0, PokemonMoveRazor_Leaf);

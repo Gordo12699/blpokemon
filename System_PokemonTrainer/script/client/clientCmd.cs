@@ -27,12 +27,12 @@ function clientCmdPokemon_DirectDialogue(%text, %a1, %a2, %a3, %a4, %a5, %a6, %a
 	PokeDebug("GOT Pokemon_DirectDialogue" SPC %text);
 }
 
-function clientCmdPokemon_EnqueueAction(%action)
+function clientCmdPokemon_EnqueueAction(%i, %action)
 {
 	if(!isObject(PokemonClientBattle))
 		return;
 
-	PokemonClientBattle.actionPush(%action);
+	PokemonClientBattle.actionSet(%i, %action);
 
 	PokeDebug("GOT Pokemon_EnqueueAction" SPC %action);
 }
@@ -137,4 +137,32 @@ function clientCmdPokemon_ReportError(%err, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %
 	}
 
 	PokeDebug("GOT Pokemon_ReportError" SPC %err SPC %a0 SPC %a1 SPC %a2 SPC %a3 SPC %a4 SPC %a5 SPC %a6 SPC %a7);
+}
+
+function clientCmdPokemon_SetRequest(%type, %a0, %a1, %a2, %a3)
+{
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	switch(%type)
+	{
+		case 0:
+			PokemonGUI_SetMode(0);
+			
+			%a0 = %a0 | 0;
+
+			if(%a0 > 2 && %this.findPokemonByID(%a0) != -1)
+				PokemonClientBattle.currentCombatant = %a0;
+			else
+				PokemonClientBattle.currentCombatant = PokemonClientBattle.getPokemonData(0, %a0, "ID");
+	}
+}
+
+function clientCmdPokemon_ActionStart(%request)
+{
+	if(!isObject(PokemonClientBattle))
+		return;
+
+	PokemonClientBattle.actionRequestType = %request | 0;
+	PokemonClientBattle.beginActionQueue();
 }

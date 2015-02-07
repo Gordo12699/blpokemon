@@ -45,6 +45,13 @@ $Pokemon::ActionError::NoPP = -3;
 $Pokemon::ActionError::InvalidUser = -4;
 $Pokemon::ActionError::NoRepeat = -5;
 
+$Pokemon::ActionError::Text[0] = "General invalid action.";
+$Pokemon::ActionError::Text[-1] = "Invalid move selection.";
+$Pokemon::ActionError::Text[-2] = "Invalid target selection.";
+$Pokemon::ActionError::Text[-3] = "No PP left for specified move.";
+$Pokemon::ActionError::Text[-4] = "Invalid user for action.";
+$Pokemon::ActionError::Text[-5] = "Already received an action for this combatant.";
+
 function Pokemon_SolveDamage(%attackerLvl, %attackerAttk, %attackPwr, %defendDef, %mods, %rand)
 {
 	//Note that this is the end formula; modifications must be made to the individual inputs in real battle for things like crits, buffs, etc.
@@ -329,6 +336,8 @@ function PokemonBattle::startTurn(%this)
 		%this.shortCritStage[%comb] = 0;
 	}
 
+	%this.sendClientRequest(0);
+
 	%this.runSchedules(%this.turn, 0);
 }
 
@@ -353,7 +362,8 @@ function PokemonBattle::isLegalAction(%this, %comb, %action)
 				return $Pokemon::ActionError::NoPP;
 
 			%target = getWord(%rest, 1);
-			if(%this.findCombatant(%target) == -1 || %this.findCombatant(%target) == %comb)
+			%tcomb = %this.findCombatant(%target);
+			if(%tcomb == -1 || %tcomb == %comb)
 				return $Pokemon::ActionError::InvalidTarget;
 
 		case "SWITCH":
@@ -411,7 +421,8 @@ function PokemonBattle::verifyTurn(%this)
 
 		if(%this.pendingActions $= "")
 		{
-			%this.executeTurn();
+			%this.setWaitingType(-1);
+			%this.startExecuteTurn();
 			return true;
 		}
 	}
@@ -460,7 +471,21 @@ function PokemonBattle::endTurn(%this)
 		// 	%this.applyEffect(%comb, %eff);
 	}
 
-	%this.startTurn();
+	%this.pushCombatants();
+	%this.pushParties();
+
+	%this.sendClientRequest(1);
+
+	//Commenting this out now because we don't want to start the next turn until players are ready.
+	// %this.startTurn(); 
+}
+
+function PokemonBattle::startExecuteTurn(%this)
+{
+	//Might need this later for some client interaction.
+	%this.turnActions = 0;
+
+	%this.executeTurn();
 }
 
 function PokemonBattle::executeAction(%this, %comb)
@@ -478,6 +503,11 @@ function PokemonBattle::executeAction(%this, %comb)
 			%move = %comb.getMove(%move);
 			%targ = getWord(%action, 2);
 			%r = %move.execute(%this, %comb, %targ);
+
+			%data = "MOVE" TAB %comb TAB %move.name;
+
+			%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
+
 		case "SWITCH":
 			%targ = getWord(%action, 1);
 			%r = %this.switchCombatant(%comb, %targ);
