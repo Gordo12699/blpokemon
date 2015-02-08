@@ -264,6 +264,7 @@ package Pokemon_Trainer
 			%trainer = nameToID(%objn);
 
 		%this.trainer = %trainer;
+		%trainer.client = %this;
 
 		return %r;
 	}

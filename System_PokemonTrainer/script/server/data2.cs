@@ -482,7 +482,7 @@ function PokemonList::addFromStrings(%this, %data, %moves, %learns, %dex, %evolv
 	return %this.newPokemon(%name, %type, %baseStats, %catchRate, %desc, %evs, %evolve, %passDex, %moves, %learns);
 }
 
-function pkmnDebugPokemon()
+function pkmnDebugPokemon(%t1, %t2, %o1, %o2)
 {
 	$PokemonDebug = 3;
 	PokemonData_Init();
@@ -495,14 +495,19 @@ function pkmnDebugPokemon()
 	if(isObject($bulb2))
 		$bulb2.delete();
 
-	$bulb1 = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
-	$bulb2 = Pokemon_New(PokemonBulbasaurData, 999999, -1);
+	$bulb1 = Pokemon_New(PokemonBulbasaurData, (%t1 !$= "" ? %t1 : 999999), (%o1 !$= "" ? %o1 : 999999));
+	$bulb2 = Pokemon_New(PokemonBulbasaurData, (%t2 !$= "" ? %t2 : 888888), (%o2 !$= "" ? %o2 : -1));
 
 	$bulb1.setMove(0, PokemonMoveRazor_Leaf);
 	$bulb2.setMove(0, PokemonMoveRazor_Leaf);
 
-	if(isObject($a))
-		$a.delete();
-	$a = Trainer_New(999999);
-	$a.handleAddPokemon($bulb1);
+	if(isObject($a1))
+		$a1.delete();
+	$a1 = Trainer_New((%t1 !$= "" ? %t1 : 999999));
+	$a1.handleAddPokemon($bulb1);
+
+	if(isObject($a2))
+		$a2.delete();
+	$a2 = Trainer_New((%t2 !$= "" ? %t2 : 888888));
+	$a2.handleAddPokemon($bulb2);
 }

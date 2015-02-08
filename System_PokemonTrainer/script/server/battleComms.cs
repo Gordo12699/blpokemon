@@ -11,7 +11,7 @@ function clientCanBattle(%obj)
 
 function clientsCanBattle(%a, %b)
 {
-	if(!isObject(%clientA) || !isObject(%clientB) || nameToID(%clientA) == nameToID(%clientB))
+	if(!isObject(%a) || !isObject(%b) || nameToID(%a) == nameToID(%b))
 		return false;
 
 	if(!clientCanBattle(%a) || !clientCanBattle(%b))
@@ -46,7 +46,7 @@ function Pokemon_InitiateClientBattle(%clientA, %clientB, %type, %stage)
 	//Forcing zero for now because only single battles are possible.
 	// commandToClient(%clientA, 'Pokemon_InitBattle', 0, %stage);
 	// commandToClient(%clientB, 'Pokemon_InitBattle', 0, %stage);
-	%this.commandToClients('Pokemon_InitBattle', 0, %stage);
+	%battle.commandToClients('Pokemon_InitBattle', 0, %stage);
 
 	%clientA.waitType = 0;
 	%clientB.waitType = 0;
