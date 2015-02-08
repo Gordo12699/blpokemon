@@ -235,6 +235,10 @@ function PokemonBattle::pushCombatants(%this)
 {
 	for(%i = 0; %i < %this.combatants; %i++)
 	{
+		%obj = "";
+		%obj2 = "";
+		%ind = "";
+
 		%comb = %this.combatant[%i];
 
 		%bl_id = %comb.owner;
@@ -243,13 +247,23 @@ function PokemonBattle::pushCombatants(%this)
 														 //ie team A's pokemon's indices could be 0, 2, and 4 in a triple battle, and team B's would be 1, 3, and 5.
 														 //As such, we can divide the combatant index by two and round down to determine the placement ID of a specific combatant.
 
+		PokeDebug("PUSHING COMBATANT" SPC %i SPC %posid SPC "->" SPC %comb);
+		PokeDebug("+--OWNER BL_ID:" SPC %bl_id);
+		PokeDebug("+--CLIENTS:" SPC %this.clients);
+
 		//If the pokemon's owner is present, they are participating in the battle and we should send the client relevant information.
-		if(isObject(%obj) || (%ind = searchWords(%this.clients, %obj)) != -1)
+		if(isObject(%obj) && ((%ind = searchWords(%this.clients, %obj)) != -1))
+		{
+			PokeDebug("+--OWNER OBJ:" SPC %obj SPC %ind);
 			%obj.pushPokemon(%comb, 0, %posid);
+		}
 
 		//If there is an opposing player, we need to also send them some data, but we want to send it as a pokemon on the opposing team instead.
-		if(isObject(%obj2 = getWord(%this.clients, !%ind))) //There will only ever be two clients battling, so we can count on the index being either zero or one.
+		if(isObject(%obj2 = getWord(%this.clients, !%ind)))
+		{													//There will only ever be two clients battling, so we can count on the index being either zero or one.
+			PokeDebug("+--OPP OBJ:" SPC %obj2 SPC !%ind);
 			%obj2.pushPokemon(%comb, 1, %posid);			//Since this is the case, we can easily find the opposite client by doing a not operation on the word index cooresponding to a client in the list.
+		} 
 	}
 }
 
@@ -305,6 +319,7 @@ function PokemonBattle::sendClientRequest(%this, %req)
 	{
 		case 0:
 			%this.commandToClients('Pokemon_SetBattleMode', 0);
+			%this.commandToClients('Pokemon_SetRequest', 0, 0);
 			%this.setWaitingType(1);
 
 		case 1:
