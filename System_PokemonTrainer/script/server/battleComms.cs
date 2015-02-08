@@ -52,6 +52,8 @@ function Pokemon_InitiateClientBattle(%clientA, %clientB, %type, %stage)
 	%clientB.waitType = 0;
 
 	%battle.waitingClients = 2;
+
+	return %battle;
 }
 
 function Pokemon_InitiateWildBattle(%client, %pokemon, %type, %stage)
@@ -79,11 +81,13 @@ function Pokemon_InitiateWildBattle(%client, %pokemon, %type, %stage)
 
 	//Forcing zero for now because only single battles are possible.
 	// commandToClient(%client, 'Pokemon_InitBattle', 0, %stage);
-	%this.commandToClients('Pokemon_InitBattle', 0, %stage);
+	%battle.commandToClients('Pokemon_InitBattle', 0, %stage);
 
 	%client.waitType = 0;
 
 	%battle.waitingClients = 1;
+
+	return %battle;
 }
 
 function serverCmdPokemon_BattleReady(%this, %type)
@@ -91,6 +95,7 @@ function serverCmdPokemon_BattleReady(%this, %type)
 	if(!isObject(%this.battle))
 		return;
 
+	%battle = %this.battle;
 	switch(%type)
 	{
 		case 0:
@@ -102,9 +107,9 @@ function serverCmdPokemon_BattleReady(%this, %type)
 
 			if(%battle.waitingClients == 0)
 			{
-				%this.pushCombatants();
-				%this.schedule(100, updateClientDisplays);
-				%this.schedule(500, Begin);
+				%battle.pushCombatants();
+				%battle.schedule(100, updateClientDisplays);
+				%battle.schedule(500, Begin);
 			}
 
 		case 2:
@@ -116,8 +121,10 @@ function serverCmdPokemon_BattleReady(%this, %type)
 
 			if(%battle.waitingClients == 0)
 			{
-				%this.updateClientDisplays();
-				%this.schedule(500, startTurn);
+				%battle.pushCombatants();
+				%battle.pushParties();
+				%battle.schedule(250, updateClientDisplays);
+				%battle.schedule(500, startTurn);
 			}
 	}
 }
@@ -139,7 +146,7 @@ function serverCmdPokemon_SetAction(%this, %id, %action)
 		return;
 	}
 
-	if((%err = %this.setAction(%id, %action)) <= 0)
+	if((%err = %this.battle.setAction(%id, %action)) <= 0)
 	{
 		commandToClient(%this, 'Pokemon_ReportError', 0, "Illegal action: %1", $Pokemon::ActionError::Text[%err]);
 		return;

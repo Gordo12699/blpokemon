@@ -141,6 +141,19 @@ function PokemonClientBattle::setPokemonData(%this, %side, %ind, %data, %val)
 	%side %= 2;
 	%ind = %this.solvePokemonIndex(%ind);
 
+	if(%data $= "HP")
+	{
+		switch(%side)
+		{
+			case 0:
+				%data = "HPCurr";
+				%val *= %this.getPokemonData(%side, %ind, "HPMax");
+
+			case 1:
+				%data = "HPP";
+		}
+	}
+
 	%this.pokemon[%side, %ind, %data] = %val;
 }
 
@@ -168,8 +181,8 @@ function PokemonClientBattle::setPokemon(%this, %side, %ind, %dex, %level, %hp, 
 	%this.setPokemonData(%side, %ind, "Name", %name);
 	%this.setPokemonData(%side, %ind, "Level", %level);
 	%this.setPokemonData(%side, %ind, "Dex", %dex);
-	%this.setPokemonData(%side, %ind, (%side == 0 ? "HPCurr" : "HPP"), %hp);
 	%this.setPokemonData(%side, %ind, "HPMax", %hpmax);
+	%this.setPokemonData(%side, %ind, (%side == 0 ? "HPCurr" : "HPP"), %hp);
 	%this.setPokemonData(%side, %ind, "Gender", %gender);
 	%this.setPokemonData(%side, %ind, "Shiny", %shiny);
 	%this.setPokemonData(%side, %ind, "XP", %xp);
@@ -324,7 +337,7 @@ function PokemonClientBattle::processAction(%this, %action)
 			%this.setPokemonData(%side, %ind, %dname, %dval);
 			%this.displayPokemonData();
 
-			return 0;
+			return 0.5;
 	}
 	return 0;
 }
@@ -447,4 +460,18 @@ function PokemonClientBattle::findPokemonByID(%this, %id)
 	}
 
 	return -1;
+}
+
+function PokemonClientBattle::setCurrentCombatant(%this, %comb)
+{
+	%comb = %comb | 0;
+
+	if(%comb > 2 && %this.findPokemonByID(%comb) != -1)
+		%this.currentCombatant = %comb;
+	else
+		%this.currentCombatant = PokemonClientBattle.getPokemonData(0, %comb, "ID");
+
+	%ind = getWord(%this.findPokemonByID(%this.currentCombatant), 1);
+
+	%this.displayMoveData(%ind);
 }

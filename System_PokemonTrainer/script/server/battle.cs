@@ -113,7 +113,9 @@ function PokemonBattle::setCombatants(%this, %teamA, %teamB)
 
 	for(%i = 0; %i < %this.combatants; %i++)
 	{
-		if(isObject(%cl = findClientByBL_ID(%this.combatant[%i].owner)) && !%h[%cl])
+		%cl = findClientByBL_ID(%this.combatant[%i].owner);
+		PokeDebug("BATTLE " @ %this @ " CLIENT CHECK FOR" SPC %this.combatant[%i] SPC "->" SPC %this.combatant[%i].owner SPC "->" SPC %cl, %this, %this.combatant[%i], %cl);
+		if(isObject(%cl) && !%h[%cl])
 		{
 			%this.clients = trim(%this.clients SPC %cl);
 			%cl.battle = %this;
@@ -301,6 +303,11 @@ function PokemonBattle::damageCombatant(%this, %comb, %attacker, %amt, %etc)
 		return -1;
 
 	%new = %comb.modHP(-%amt);
+
+	%data = "DATA" TAB %comb TAB "HP" SPC %comb.getHPPerc();
+	%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
+	%this.turnActions++;
+
 	return %new;
 }
 
@@ -471,8 +478,8 @@ function PokemonBattle::endTurn(%this)
 		// 	%this.applyEffect(%comb, %eff);
 	}
 
-	%this.pushCombatants();
-	%this.pushParties();
+	// %this.pushCombatants();
+	// %this.pushParties();
 
 	%this.sendClientRequest(1);
 
@@ -502,11 +509,12 @@ function PokemonBattle::executeAction(%this, %comb)
 			%move = getWord(%action, 1);
 			%move = %comb.getMove(%move);
 			%targ = getWord(%action, 2);
-			%r = %move.execute(%this, %comb, %targ);
 
 			%data = "MOVE" TAB %comb TAB %move.name;
-
 			%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
+			%this.turnActions++;
+
+			%r = %move.execute(%this, %comb, %targ);
 
 		case "SWITCH":
 			%targ = getWord(%action, 1);

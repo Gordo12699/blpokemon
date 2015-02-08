@@ -51,7 +51,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 
 				trainerID = (%trainerBL_ID !$= "" ? solveTrainerID(%trainerBL_ID) : "");
 				secretID = (%trainerBL_ID !$= "" ? solveSecretID(%trainerBL_ID) : "");
-				owner = (%owner >= 0 ? -1 : %owner + 0);
+				owner = (%owner >= 0 ? %owner + 0 : -1);
 				nickname = (%name $= "" ? %data.name : %name);
 				species = %data.name;
 

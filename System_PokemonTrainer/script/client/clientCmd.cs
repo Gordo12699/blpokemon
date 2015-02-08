@@ -149,12 +149,7 @@ function clientCmdPokemon_SetRequest(%type, %a0, %a1, %a2, %a3)
 		case 0:
 			PokemonGUI_SetMode(0);
 			
-			%a0 = %a0 | 0;
-
-			if(%a0 > 2 && %this.findPokemonByID(%a0) != -1)
-				PokemonClientBattle.currentCombatant = %a0;
-			else
-				PokemonClientBattle.currentCombatant = PokemonClientBattle.getPokemonData(0, %a0, "ID");
+			PokemonClientBattle.setCurrentCombatant(%a0);
 	}
 }
 

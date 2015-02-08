@@ -484,21 +484,25 @@ function PokemonList::addFromStrings(%this, %data, %moves, %learns, %dex, %evolv
 
 function pkmnDebugPokemon()
 {
+	$PokemonDebug = 3;
 	PokemonData_Init();
 
 	echo(PokemonList.addFromJSON2($PokemonData.loadDataJSON($Pokemon::Root @ "data/Gen1Revision.json", "Pokemon")));
 	echo(PokemonMoves.addFromJSON2($PokemonData.loadDataJSON($Pokemon::Root @ "data/MovesNew.json", "Pokemon")));
 
-	if(isObject($bulb))
-		$bulb.delete();
+	if(isObject($bulb1))
+		$bulb1.delete();
 	if(isObject($bulb2))
 		$bulb2.delete();
 
-	$bulb = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
-	$bulb2 = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
+	$bulb1 = Pokemon_New(PokemonBulbasaurData, 999999, 999999);
+	$bulb2 = Pokemon_New(PokemonBulbasaurData, 999999, -1);
 
-	$bulb.setMove(0, PokemonMoveRazor_Leaf);
+	$bulb1.setMove(0, PokemonMoveRazor_Leaf);
 	$bulb2.setMove(0, PokemonMoveRazor_Leaf);
 
-	$PokemonDebug = 3;
+	if(isObject($a))
+		$a.delete();
+	$a = Trainer_New(999999);
+	$a.handleAddPokemon($bulb1);
 }
