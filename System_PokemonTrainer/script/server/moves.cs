@@ -166,6 +166,21 @@ function PokemonMove::execute(%this, %battle, %user, %target)
 		PokeDebug("   &--TOTAL DAMAGE:" SPC %dam, %battle, %user, %target, %this);
 
 		%battle.damageCombatant(%target, %user, %dam, trim((%crit ? "CRIT" : "") SPC (%tmod > 1 ? "SUPEREFF" : "INEFF")));
+
+		if(%tmod != 1)
+		{
+			%tmsg = "TEXT" TAB (%tmod > 1 ? "It's super effective!" : "It's not very effective...");
+			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, %tmsg);
+			%battle.turnActions++;
+		}
+
+		if(%crit)
+		{
+			%cmsg = "TEXT\tA critical hit!";
+			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, %cmsg);
+			%battle.turnActions++;
+		}
+
 		Pokemon_ProcessEffect(%this.effect, 3, %battle, %user, %target);
 		%battle.runSchedules(%battle.turn, 3);
 	}
