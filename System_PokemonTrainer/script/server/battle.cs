@@ -506,9 +506,11 @@ function PokemonBattle::executeAction(%this, %comb)
 	switch$(firstWord(%action))
 	{
 		case "MOVE":
-			%move = getWord(%action, 1);
-			%move = %comb.getMove(%move);
+			%moveslot = getWord(%action, 1);
+			%move = %comb.getMove(%moveslot);
 			%targ = getWord(%action, 2);
+
+			%comb.setPP(%moveslot, %comb.getPP(%moveslot)-1);
 
 			%data = "MOVE" TAB %comb TAB %move.name;
 			%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
