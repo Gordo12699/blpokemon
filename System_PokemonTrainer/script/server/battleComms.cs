@@ -318,7 +318,6 @@ function PokemonBattle::sendClientRequest(%this, %req)
 	switch(%req)
 	{
 		case 0:
-			%this.commandToClients('Pokemon_SetBattleMode', 0);
 			%this.commandToClients('Pokemon_SetRequest', 0, 0);
 			%this.setWaitingType(1);
 
