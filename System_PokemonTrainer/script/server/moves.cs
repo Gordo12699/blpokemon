@@ -169,15 +169,14 @@ function PokemonMove::execute(%this, %battle, %user, %target)
 
 		if(%tmod != 1)
 		{
-			%tmsg = "TEXT" TAB (%tmod > 1 ? "It's super effective!" : "It's not very effective...");
-			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, %tmsg);
+			%tparam = (%tmod > 1 ? 0 : 1);
+			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, "EFF" TAB %tparam);
 			%battle.turnActions++;
 		}
 
 		if(%crit)
 		{
-			%cmsg = "TEXT\tA critical hit!";
-			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, %cmsg);
+			%battle.commandToClients('Pokemon_EnqueueAction', %battle.turnActions, "CRIT");
 			%battle.turnActions++;
 		}
 

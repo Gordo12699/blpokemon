@@ -1,6 +1,9 @@
 $Pokemon::DialoguePattern::Move = "%1 used %2!";
 $Pokemon::DialoguePattern::Miss = "%1's attack missed!";
 $Pokemon::DialoguePattern::Fail = "But it failed!";
+$Pokemon::DialoguePattern::SuperEff = "It's super effective!";
+$Pokemon::DialoguePattern::NotEff = "It's not very effective...";
+$Pokemon::DialoguePattern::Crit = "A critical hit!";
 
 $Pokemon::ClientBattle::ActionQueuePeriod = 3000;
 
@@ -323,6 +326,24 @@ function PokemonClientBattle::processAction(%this, %action)
 			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Fail, %uname, %name);
 
 			return 1;
+
+		case "EFF":
+			%type = getField(%params, 0);
+
+			switch(%type)
+			{
+				case 0:
+					%msg = $Pokemon::DialoguePattern::SuperEff;
+				case 1:
+					%msg = $Pokemon::DialoguePattern::NotEff;
+				default:
+					return 0;
+			}
+
+			PokemonBattleGui.setDialogue(%msg);
+
+		case "CRIT":
+			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Crit);
 
 		case "DATA":
 			%user = %this.findPokemonByID(getField(%params, 0));

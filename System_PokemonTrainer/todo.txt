@@ -1,0 +1,35 @@
+TO-DO LIST WOW!!!
+
+++Things to be fixed
+	~Fix errors with HP transfer in action queue (Inaccurate or decimal values for current HP)
+	~Disable mouse event controls for inactive move slots
+
+++Handle faiting during battle.
+	+Create experience system on server side.
+	+Create client-sided handling for switching pokemon.
+
++Import new databases and convert to .cs format.
+	+Create database for first 151 pokemon.
+
++Move effectiveness/crit message handling to the client side.
+	+Create other message handling for different events
+
++Create common status effect functionality.
+
++Flesh out evolution system to allow for more unique evolution conditions.
+
++Create user-friendly methods for handling pokemon.
+	+Create out-of-battle GUI for party, bag, etc.
+
++Wild battles
+	+Create pokemon/trainer AI.
+	+Create methods for initiating PvE battle.
+
++Implement pokeballs.
+
++Create user-friendly method for initiating PvP battle.
+
++Create some pokemon centre-related stuff for restoring pokemon via events.
+
++Improve communication with opponent during battle
+	-Cannibalise team chat?
