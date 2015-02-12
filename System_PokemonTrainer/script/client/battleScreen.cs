@@ -43,7 +43,8 @@ function PokemonBattleGui::setMove(%this, %i, %type, %name, %pp, %ppmax)
 	%bimg = getMoveButtonImage(%type);
 	%timg = getTypeImage(%type);
 
-	("PokemonMoveImg" @ %i).setBitmap(%bimg);
+	%obj = ("PokemonMoveImg" @ %i);
+	%obj.setBitmap(%bimg);
 
 	if(fileBase(%bimg) !$= "none")
 	{
@@ -56,6 +57,8 @@ function PokemonBattleGui::setMove(%this, %i, %type, %name, %pp, %ppmax)
 		("PokemonMoveType" @ %i).setVisible(true);
 		("PokemonMovePP" @ %i).setVisible(true);
 		("PokemonMovePPText" @ %i).setVisible(true);
+
+		%obj.slot = %i;
 	}
 	else
 	{
@@ -63,6 +66,8 @@ function PokemonBattleGui::setMove(%this, %i, %type, %name, %pp, %ppmax)
 		("PokemonMoveType" @ %i).setVisible(false);
 		("PokemonMovePP" @ %i).setVisible(false);
 		("PokemonMovePPText" @ %i).setVisible(false);
+
+		%obj.slot = -1;
 	}
 
 	return true;
@@ -318,6 +323,7 @@ function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender,
 	if(%dex < 0)
 	{
 		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn_i");
+		("PokemonPB" @ %i).setBitmap($Pokemon::UIRoot @ "misc/noball");
 		return;
 	}
 
@@ -336,7 +342,13 @@ function PokemonBattleGui::setPartySlot(%this, %i, %name, %dex, %level, %gender,
 		%o.setVisible(false);
 
 	if(%hpcurr <= 0)
+	{
 		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn_fnt");
+		("PokemonPB" @ %i).setBitmap($Pokemon::UIRoot @ "misc/pokeball_faint");
+	}
 	else
+	{
 		%parent.setBitmap($Pokemon::ButtonRoot @ "party/partypkmn");
+		("PokemonPB" @ %i).setBitmap($Pokemon::UIRoot @ "misc/pokeball");
+	}
 }

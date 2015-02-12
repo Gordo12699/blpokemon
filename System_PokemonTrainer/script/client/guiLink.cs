@@ -16,6 +16,8 @@ function PokemonMoveMouse::onMouseDown(%this, %mod, %pos, %click)
 
 	//Send battle command.
 	%slot = %this.getGroup().slot;
+	if(%slot == -1)
+		return;
 
 	%req = "MOVE" SPC %slot SPC PokemonClientBattle.getPokemonData(1, 0, "ID"); //just for now
 	commandToServer('Pokemon_SetAction', PokemonClientBattle.currentCombatant, %req);

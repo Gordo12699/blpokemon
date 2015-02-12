@@ -26,6 +26,7 @@ function PokemonClient_BattleInit()
 
 	%this.updateBattleDisplay();
 	%this.updateBattleGuiDisplay();
+	%this.displayMoveData(0);
 
 	$Pokemon::ClientBattle = %this;
 
@@ -285,6 +286,8 @@ function PokemonClientBattle::processAction(%this, %action)
 	%type = getField(%action, 0);
 	%params = getFields(%action, 1, getFieldCount(%action)-1);
 
+	PokeDebug("CLIENT ACTION QUEUE:" SPC "'" @ %action @ "'");
+
 	switch$(%type)
 	{
 		case "TEXT":
@@ -329,22 +332,29 @@ function PokemonClientBattle::processAction(%this, %action)
 			return 1;
 
 		case "EFF":
-			%type = getField(%params, 0);
+			%t = getField(%params, 0);
 
-			switch(%type)
+			// PokeDebug(%t);
+			switch(%t)
 			{
 				case 0:
+					// PokeDebug("super");
 					%msg = $Pokemon::DialoguePattern::SuperEff;
 				case 1:
+					// PokeDebug("not");
 					%msg = $Pokemon::DialoguePattern::NotEff;
 				default:
+					// PokeDebug("wat");
 					return 0;
 			}
 
+			// PokeDebug(%msg);
 			PokemonBattleGui.setDialogue(%msg);
+			return 1;
 
 		case "CRIT":
 			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Crit);
+			return 1;
 
 		case "DATA":
 			%user = %this.findPokemonByID(getField(%params, 0));

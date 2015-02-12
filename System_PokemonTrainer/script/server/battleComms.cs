@@ -251,15 +251,17 @@ function PokemonBattle::pushCombatants(%this)
 		PokeDebug("+--OWNER BL_ID:" SPC %bl_id);
 		PokeDebug("+--CLIENTS:" SPC %this.clients);
 
+		%ind = searchWords(%this.clients, %obj);
+
 		//If the pokemon's owner is present, they are participating in the battle and we should send the client relevant information.
-		if(isObject(%obj) && ((%ind = searchWords(%this.clients, %obj)) != -1))
+		if(isObject(%obj) && %ind != -1)
 		{
 			PokeDebug("+--OWNER OBJ:" SPC %obj SPC %ind);
 			%obj.pushPokemon(%comb, 0, %posid);
 		}
 
 		//If there is an opposing player, we need to also send them some data, but we want to send it as a pokemon on the opposing team instead.
-		if(isObject(%obj2 = getWord(%this.clients, !%ind)))
+		if(isObject(%obj2 = getWord(%this.clients, (%ind != -1 ? !%ind : 0))))
 		{													//There will only ever be two clients battling, so we can count on the index being either zero or one.
 			PokeDebug("+--OPP OBJ:" SPC %obj2 SPC !%ind);
 			%obj2.pushPokemon(%comb, 1, %posid);			//Since this is the case, we can easily find the opposite client by doing a not operation on the word index cooresponding to a client in the list.

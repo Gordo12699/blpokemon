@@ -509,15 +509,13 @@ function pkmnDebugPokemon(%t1, %t2, %n1, %n2)
 
 function pkmnDebugBulbasaur(%bl_id, %nick)
 {
-	$b[%bl_id] = Pokemon_New(PokemonBulbasaurData, %bl_id, %bl_id);
+	$b[%bl_id] = Pokemon_New(PokemonBulbasaurData, %bl_id, %bl_id, %nick);
 
 	$b[%bl_id].setMove(0, PokemonMoveRazor_Leaf);
 
 	$b[%bl_id].setMove(1, PokemonMoveSeed_Bomb);
 
 	$b[%bl_id].setStatsForLevel(50);
-
-	$b[%bl_id].nickname = %nick;
 
 	%t = "PokemonTrainer_" @ %bl_id;
 	if(!isObject(%t))

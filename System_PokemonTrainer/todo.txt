@@ -1,8 +1,7 @@
 TO-DO LIST WOW!!!
 
 ++Things to be fixed
-	~Fix errors with HP transfer in action queue (Inaccurate or decimal values for current HP)
-	~Disable mouse event controls for inactive move slots
+	~Nothing found yet!
 
 ++Handle faiting during battle.
 	+Create experience system on server side.
@@ -11,8 +10,7 @@ TO-DO LIST WOW!!!
 +Import new databases and convert to .cs format.
 	+Create database for first 151 pokemon.
 
-+Move effectiveness/crit message handling to the client side.
-	+Create other message handling for different events
++Create other message handling for different events
 
 +Create common status effect functionality.
 
