@@ -151,6 +151,7 @@ function PokemonClientBattle::setPokemonData(%this, %side, %ind, %data, %val)
 			case 0:
 				%data = "HPCurr";
 				%val *= %this.getPokemonData(%side, %ind, "HPMax");
+				%val = mFloor(%val);
 
 			case 1:
 				%data = "HPP";
