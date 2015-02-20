@@ -80,7 +80,7 @@ function Pokemon_New(%data, %trainerBL_ID, %owner, %name)
 				statSpDef = -1;
 				statSpeed = -1;
 				statEff = -1;
-				statXP = 0;
+				statEXP = 0;
 
 				ivAtk = 0;
 				ivDef = 0;
@@ -371,4 +371,73 @@ function Pokemon::removeMove(%this, %slot)
 	%this.ppMax[%slot] = -1;
 
 	return true;
+}
+
+function Pokemon::addEXP(%this, %amt)
+{
+	%this.statEXP += %amt;
+
+	if(%this.getCanLevel())
+		%this.levelUp();
+
+	return %this.statEXP;
+}
+
+function Pokemon::getCanLevel(%this)
+{
+	if(%this.statLevel >= 100)
+		return false;
+
+	%req = %this.getRequiredEXP();
+	if(%req < 0)
+		return false;
+
+	if(%req < %this.statEXP)
+		return false;
+
+	return true;
+}
+
+function Pokemon::getRequiredEXP(%this)
+{
+	%level = %this.statLevel;
+	if(%level >= 100)
+		return -1;
+
+	%exp = %this.statEXP;
+	%l3 = mPow(%level, 3);
+	switch$(%this.data.expGroup)
+	{
+		case "Erratic":
+			if(%level <= 50)
+				return %l3 * (100 - %level) / 50;
+			else if(%level <= 68)
+				return %l3 * (150 - %level) / 100;
+			else if(%level <= 98)
+				return %l3 * ((1911 - 10 * %level) / 3) / 500;
+			else if(%level <= 100)
+				return %l3 * (160 - %level) / 100;
+
+		case "Fast":
+			return 0.8 * %l3;
+
+		case "MediumFast":
+			return %l3;
+
+		case "MediumSlow":
+			return 1.2 * %l3 - 15 * %l3 + 100 * %l3 - 140;
+
+		case "Slow":
+			return 1.2 * %l3;
+
+		case "Fluctuating":
+			if(%level <= 15)
+				return %l3 * ((((%level + 1) / 3) + 24) / 50);
+			else if(%level <= 36)
+				return %l3 * ((%level + 14) / 50);
+			else if(%level <= 100)
+				return %l3 * (((%level / 2) + 14) / 50);
+	}
+
+	return -1;
 }

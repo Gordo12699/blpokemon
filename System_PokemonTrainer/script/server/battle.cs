@@ -72,6 +72,18 @@ function Pokemon_SolveDamage(%attackerLvl, %attackerAttk, %attackPwr, %defendDef
 	return %r4;
 }
 
+function Pokemon_SolveExperience(%level, %baseExp, %trainer, %traded, %s, %etc)
+{
+	%a = (%trainer ? 1.5 : 1);
+	%t = (%traded ? 1.5 : 1);
+	%s = (%s !$= "" ? %s : 1);
+
+	%r1 = %level * %a * %t * %b * %etc;
+	%r2 = %r1 / (%s * 7);
+
+	return %r2;
+}
+
 function Pokemon_InitBattle(%wild)
 {
 	if(!isObject(PokemonBattleGroup))
