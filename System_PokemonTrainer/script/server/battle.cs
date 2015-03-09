@@ -14,6 +14,7 @@ $Pokemon::Battle::ModTable[%mods++] = 3;	//+4
 $Pokemon::Battle::ModTable[%mods++] = 3.5;	//+5
 $Pokemon::Battle::ModTable[%mods++] = 4;	//+6
 
+//Accuracy and evasion are modified slightly differently
 %mods = -7;
 $Pokemon::Battle::ModTableAE[%mods++] = 0.33; 	//-6
 $Pokemon::Battle::ModTableAE[%mods++] = 0.375; 	//-5
@@ -31,6 +32,7 @@ $Pokemon::Battle::ModTableAE[%mods++] = 3;		//+6
 $Pokemon::Battle::ModTableMin = -6;
 $Pokemon::Battle::ModTableMax = 6;
 
+//Critical hit chances per crit stage
 $Pokemon::Battle::CritTable0 = 0.0625;
 $Pokemon::Battle::CritTable1 = 0.125;
 $Pokemon::Battle::CritTable2 = 0.25;
@@ -38,6 +40,7 @@ $Pokemon::Battle::CritTable3 = 0.333;
 $Pokemon::Battle::CritTable4 = 0.5;
 $Pokemon::Battle::CritMax = 4;
 
+//error codes bluh
 $Pokemon::ActionError::InvalidAction = 0;
 $Pokemon::ActionError::InvalidMove = -1;
 $Pokemon::ActionError::InvalidTarget = -2;
@@ -45,6 +48,7 @@ $Pokemon::ActionError::NoPP = -3;
 $Pokemon::ActionError::InvalidUser = -4;
 $Pokemon::ActionError::NoRepeat = -5;
 
+//error messages bluh
 $Pokemon::ActionError::Text[0] = "General invalid action.";
 $Pokemon::ActionError::Text[-1] = "Invalid move selection.";
 $Pokemon::ActionError::Text[-2] = "Invalid target selection.";
@@ -113,7 +117,7 @@ function PokemonBattle::setCombatants(%this, %teamA, %teamB)
 	%teamA = nameToID(%teamA);
 	%teamB = nameToID(%teamB);
 
-	if(%teamA.superClass !$= "Pokemon" || %teamB.superClass !$= "Pokemon")
+	if(!isPokemon(%teamA) || !isPokemon(%teamB))
 		return false;
 
 	%this.combatant0 = %teamA;
@@ -169,6 +173,7 @@ function PokemonBattle::initCombatant(%this, %comb, %from)
 	%from = nameToID(%from);
 	PokeDebug("POKEMON BATTLE " @ %this @ " INITIALISING COMBATANT " @ %comb, %this, %comb, %from);
 	%this.entry[%comb] = (%this.turn > 0 ? %this.turn : 0);
+	%comb.battle = %this;
 	if(%this.findCombatant(%from) == -1)
 	{
 		for(%i = 1; %i < 6; %i++)
@@ -225,6 +230,8 @@ function PokemonBattle::releaseCombatant(%this, %comb)
 	%this.volStatus[%comb] = "";
 	%this.volBattle[%comb] = "";
 	%this.critStage[%comb] = "";
+
+	%comb.battle = "";
 }
 
 function PokemonBattle::findCombatant(%this, %comb)
@@ -317,8 +324,13 @@ function PokemonBattle::damageCombatant(%this, %comb, %attacker, %amt, %etc)
 	%new = %comb.modHP(-%amt);
 
 	%data = "DATA" TAB %comb TAB "HP" SPC %comb.getHPPerc();
-	%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
-	%this.turnActions++;
+	// %this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
+	// %this.turnActions++;
+
+	%this.pushAction(%data);
+
+	%r = %this.checkForFainted();
+	%this.haltTurn = true;
 
 	return %new;
 }
@@ -327,7 +339,7 @@ function PokemonBattle::Begin(%this)
 {
 	%teamA = %this.combatant0;
 	%teamB = %this.combatant1;
-	if(%teamA.superClass !$= "Pokemon" || %teamB.superClass !$= "Pokemon")
+	if(!isPokemon(%teamA) || !isPokemon(%teamB))
 		return false;
 
 	PokeDebug("POKEMON BATTLE" SPC %this SPC "BEGIN", %this);
@@ -341,7 +353,7 @@ function PokemonBattle::startTurn(%this)
 {
 	%teamA = %this.combatant0;
 	%teamB = %this.combatant1;
-	if(%teamA.superClass !$= "Pokemon" || %teamB.superClass !$= "Pokemon")
+	if(!isPokemon(%teamA) || !isPokemon(%teamB))
 		return false;
 
 	%this.turn++;
@@ -363,7 +375,7 @@ function PokemonBattle::startTurn(%this)
 function PokemonBattle::isLegalAction(%this, %comb, %action)
 {
 	%comb = nameToID(%comb);
-	if(%comb.superClass !$= "Pokemon" || %this.findCombatant(%comb) == -1)
+	if(!isPokemon(%comb) || %this.findCombatant(%comb) == -1)
 		return $Pokemon::ActionError::InvalidUser;
 
 	if(%this.action[%comb] !$= "")
@@ -388,7 +400,7 @@ function PokemonBattle::isLegalAction(%this, %comb, %action)
 		case "SWITCH":
 			%rest = restWords(%action);
 			%rest = nameToID(%rest);
-			if(!isObject(%rest) || %rest.superClass !$= "Pokemon")
+			if(!isPokemon(%rest))
 				return $Pokemon::ActionError::InvalidTarget;
 			if(%this.findCombatant(%rest) != -1)
 				return $Pokemon::ActionError::InvalidTarget;
@@ -474,6 +486,118 @@ function PokemonBattle::determinePriority(%this)
 
 		%this.priority[%pri] = trim(%this.priority[%pri] SPC %comb);
 	}
+
+	for(%i = 8; %i >= -8; %i--)
+	{
+		%todo = %this.priority[%i];
+
+		PokeDebug("+--PRIORITY" SPC %i @ ": " SPC %todo, %this);
+
+		if(%todo $= "")
+			continue;
+
+		%ct = getWordCount(%todo);
+		if(%ct == 1)
+			continue;
+		else
+		{
+			if(!isObject(%sort = %this.turnSort))
+			{
+				%this.turnSort = %sort = new GuiTextListCtrl();
+				// %str = "";
+				for(%j = 0; %j < %ct; %j++)
+				{
+					%comb = getWord(%todo, %j);
+
+					%speed = %comb.getStat("Speed");
+					%speed *= $Pokemon::Battle::ModTable[%this.getModStage(%comb, "Speed")];
+
+					if(%comb.getStat("Eff") $= "PARALYSIS" && %comb.ability !$= "Quick Feet")
+						%speed /= 4;
+
+					if(%comb.ability $= "Quick Feet")
+						%speed *= 1.5;
+
+					%append = %speed TAB %comb;
+
+					PokeDebug("   +--SPEED FOR" SPC %comb @ ":" SPC %speed, %this, %comb);
+
+					%sort.addRow(%j, %append);
+
+					// %str = trim(%str TAB %append);
+				}
+
+				// PokeDebug("   +--UNSORTED:" SPC %str, %battle);
+
+				//Solve cases where speeds are equal.
+				%fct = %sort.rowCount();
+				%solved = false;
+				while(!%solved)
+				{
+					deleteVariables("$pktemp::has*");
+					%solved = true;
+					for(%l = 0; %l < %fct; %l++)
+					{
+						%f = %sort.getRowText(%l);
+						%s = getField(%f, 0);
+						if($pktemp::has[%s])
+						{
+							%s += (getRandom(1) ? 1 : -1);
+							%str = setField(%f, 0, %s);
+							%sort.setRowByID(%sort.getRowID(%l), %str);
+							%solved = false;
+							continue;
+						}
+						$pktemp::has[%s] = true;
+					}
+				}
+				// %str = bubbleSort(%str);
+
+				%sort.sortNumerical(0, false);
+
+				if($PokemonDebug)
+				{
+					for(%l = 0; %l < %fct; %l++)
+						PokeDebug("   +--SORT" SPC %l @ ":" SPC %sort.getRowText(%l), %this);
+				}
+			}
+
+			%this.priority[%i] = "";
+
+			for(%k = 0; %k < %fct; %k++)
+			{
+				%row = %sort.getRowText(%k);
+
+				%s = getField(%row, 0);
+				%c = getField(%row, 1);
+				PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
+
+				%this.priority[%i] = trim(%this.priority[%i] SPC %c);
+
+				// %this.executeAction(%c);
+
+				// if(%this.haltTurn)
+				// 	return;
+			}
+
+			// PokeDebug("   +--SORTED:" SPC %str, %battle);
+
+			// for(%k = %fct-1; %k >= 0; %k--)
+			// {
+			// 	%f = getField(%str, %k);
+			// 	%s = getWord(%f, 0);
+			// 	%c = getWord(%f, 1);
+			// 	PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
+
+			// 	%this.executeAction(getWord(%f, 1));
+			// }
+		}
+
+		// %this.priority[%i] = "";
+
+		// if(%this.haltTurn)
+		// 	return;
+	}
 }
 
 function PokemonBattle::endTurn(%this)
@@ -501,14 +625,22 @@ function PokemonBattle::endTurn(%this)
 
 function PokemonBattle::startExecuteTurn(%this)
 {
-	//Might need this later for some client interaction.
+	PokeDebug("POKEMON BATTLE" SPC %this SPC "EXECUTING TURN", %this);
+
 	%this.turnActions = 0;
+
+	%this.determinePriority();
+
+	%this.runSchedules(%this.turn, 1);
 
 	%this.executeTurn();
 }
 
 function PokemonBattle::executeAction(%this, %comb)
 {
+	if(%this.doneAction[%comb])
+		return -1;
+
 	%action = %this.action[%comb];
 
 	PokeDebug("POKEMON BATTLE" SPC %this SPC "EXECUTING ACTION FOR" SPC %comb, %this, %comb);
@@ -525,8 +657,10 @@ function PokemonBattle::executeAction(%this, %comb)
 			%comb.setPP(%moveslot, %comb.getPP(%moveslot)-1);
 
 			%data = "MOVE" TAB %comb TAB %move.name;
-			%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
-			%this.turnActions++;
+			// %this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %data);
+			// %this.turnActions++;
+
+			%this.pushAction(%data);
 
 			%r = %move.execute(%this, %comb, %targ);
 
@@ -537,119 +671,160 @@ function PokemonBattle::executeAction(%this, %comb)
 			%r = true;
 			//pass
 	}
+
+	%this.doneAction[%comb] = true;
+
 	return %r;
+}
+
+function PokemonBattle::executeNextAction(%this)
+{
+	%found = false;
+	for(%i = 8; %i >= -8; %i--)
+	{
+		%list = %this.priority[%i];
+
+		if(%list $= "")
+			continue;
+
+		%found = true;
+
+		%comb = firstWord(%list);
+		%this.executeAction(%comb);
+
+		%this.priority[%i] = removeWord(%list, 0);
+		break;
+	}
+
+	return %found;
 }
 
 function PokemonBattle::executeTurn(%this)
 {
-	PokeDebug("POKEMON BATTLE" SPC %this SPC "EXECUTING TURN", %this);
-	%this.determinePriority();
+	PokeDebug("+--POKEMON BATTLE" SPC %this SPC "EXECUTING TURN STEP", %this);
+
+	// this block of code is commented out in case i broke something oops!!
+	// It's supposed to run the whole turn at once AND solve for speed but that's STUPID DUMB!!
+	// instead I moved stuff that happens at the start of turn execution to startExecuteTurn (which wasn't originally a step in execution)...
+	// which included moving speed solving into determinePriority...
+	// and now this function does what it says, it executes the actions in the turn and nothing more.
+	// for(%i = 8; %i >= -8; %i--)
+	// {
+	// 	%todo = %this.priority[%i];
+
+	// 	PokeDebug("+--PRIORITY" SPC %i @ ": " SPC %todo, %this);
+
+	// 	if(%todo $= "")
+	// 		continue;
+
+	// 	%ct = getWordCount(%todo);
+	// 	if(%ct == 1)
+	// 		%this.executeAction(%todo);
+	// 	else
+	// 	{
+	// 		if(!isObject(%sort = %this.turnSort))
+	// 		{
+	// 			%this.turnSort = %sort = new GuiTextListCtrl();
+	// 			// %str = "";
+	// 			for(%j = 0; %j < %ct; %j++)
+	// 			{
+	// 				%comb = getWord(%todo, %j);
+
+	// 				%speed = %comb.getStat("Speed");
+	// 				%speed *= $Pokemon::Battle::ModTable[%this.getModStage(%comb, "Speed")];
+
+	// 				if(%comb.getStat("Eff") $= "PARALYSIS" && %comb.ability !$= "Quick Feet")
+	// 					%speed /= 4;
+
+	// 				if(%comb.ability $= "Quick Feet")
+	// 					%speed *= 1.5;
+
+	// 				%append = %speed TAB %comb;
+
+	// 				PokeDebug("   +--SPEED FOR" SPC %comb @ ":" SPC %speed, %this, %comb);
+
+	// 				%sort.addRow(%j, %append);
+
+	// 				// %str = trim(%str TAB %append);
+	// 			}
+
+	// 			// PokeDebug("   +--UNSORTED:" SPC %str, %battle);
+
+	// 			//Solve cases where speeds are equal.
+	// 			%fct = %sort.rowCount();
+	// 			%solved = false;
+	// 			while(!%solved)
+	// 			{
+	// 				deleteVariables("$pktemp::has*");
+	// 				%solved = true;
+	// 				for(%l = 0; %l < %fct; %l++)
+	// 				{
+	// 					%f = %sort.getRowText(%l);
+	// 					%s = getField(%f, 0);
+	// 					if($pktemp::has[%s])
+	// 					{
+	// 						%s += (getRandom(1) ? 1 : -1);
+	// 						%str = setField(%f, 0, %s);
+	// 						%sort.setRowByID(%sort.getRowID(%l), %str);
+	// 						%solved = false;
+	// 						continue;
+	// 					}
+	// 					$pktemp::has[%s] = true;
+	// 				}
+	// 			}
+	// 			// %str = bubbleSort(%str);
+
+	// 			%sort.sortNumerical(0, false);
+
+	// 			if($PokemonDebug)
+	// 			{
+	// 				for(%l = 0; %l < %fct; %l++)
+	// 					PokeDebug("   +--SORT" SPC %l @ ":" SPC %sort.getRowText(%l), %this);
+	// 			}
+	// 		}
+
+	// 		for(%k = 0; %k < %fct; %k++)
+	// 		{
+	// 			%row = %sort.getRowText(%k);
+
+	// 			%s = getField(%row, 0);
+	// 			%c = getField(%row, 1);
+	// 			PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
+
+	// 			%this.executeAction(%c);
+
+	// 			if(%this.haltTurn)
+	// 				return;
+	// 		}
+
+	// 		// PokeDebug("   +--SORTED:" SPC %str, %battle);
+
+	// 		// for(%k = %fct-1; %k >= 0; %k--)
+	// 		// {
+	// 		// 	%f = getField(%str, %k);
+	// 		// 	%s = getWord(%f, 0);
+	// 		// 	%c = getWord(%f, 1);
+	// 		// 	PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
+
+	// 		// 	%this.executeAction(getWord(%f, 1));
+	// 		// }
+	// 	}
+
+	// 	%this.priority[%i] = "";
+
+	// 	if(%this.haltTurn)
+	// 		return;
+	// }
 
 
-	%this.runSchedules(%this.turn, 1);
-
-	for(%i = 8; %i >= -8; %i--)
+	if(!%this.executeNextAction())
 	{
-		%todo = %this.priority[%i];
+		%this.runSchedules(%this.turn, 5);
 
-		PokeDebug("+--PRIORITY" SPC %i @ ": " SPC %todo, %this);
-
-		if(%todo $= "")
-			continue;
-
-		%ct = getWordCount(%todo);
-		if(%ct == 1)
-			%this.executeAction(%todo);
-		else
-		{
-			%sort = new GuiTextListCtrl();
-			// %str = "";
-			for(%j = 0; %j < %ct; %j++)
-			{
-				%comb = getWord(%todo, %j);
-
-				%speed = %comb.getStat("Speed");
-				%speed *= $Pokemon::Battle::ModTable[%this.getModStage(%comb, "Speed")];
-
-				if(%comb.getStat("Eff") $= "PARALYSIS" && %comb.ability !$= "Quick Feet")
-					%speed /= 4;
-
-				if(%comb.ability $= "Quick Feet")
-					%speed *= 1.5;
-
-				%append = %speed TAB %comb;
-
-				PokeDebug("   +--SPEED FOR" SPC %comb @ ":" SPC %speed, %this, %comb);
-
-				%sort.addRow(%j, %append);
-
-				// %str = trim(%str TAB %append);
-			}
-
-			// PokeDebug("   +--UNSORTED:" SPC %str, %battle);
-
-			//Solve cases where speeds are equal.
-			%fct = %sort.rowCount();
-			%solved = false;
-			while(!%solved)
-			{
-				deleteVariables("$pktemp::has*");
-				%solved = true;
-				for(%l = 0; %l < %fct; %l++)
-				{
-					%f = %sort.getRowText(%l);
-					%s = getField(%f, 0);
-					if($pktemp::has[%s])
-					{
-						%s += (getRandom(1) ? 1 : -1);
-						%str = setField(%f, 0, %s);
-						%sort.setRowByID(%sort.getRowID(%l), %str);
-						%solved = false;
-						continue;
-					}
-					$pktemp::has[%s] = true;
-				}
-			}
-			// %str = bubbleSort(%str);
-
-			%sort.sortNumerical(0, false);
-
-			if($PokemonDebug)
-			{
-				for(%l = 0; %l < %fct; %l++)
-					PokeDebug("   +--SORT" SPC %l @ ":" SPC %sort.getRowText(%l), %this);
-			}
-
-			for(%k = 0; %k < %fct; %k++)
-			{
-				%row = %sort.getRowText(%k);
-
-				%s = getField(%row, 0);
-				%c = getField(%row, 1);
-				PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
-
-				%this.executeAction(%c);
-			}
-
-			// PokeDebug("   +--SORTED:" SPC %str, %battle);
-
-			// for(%k = %fct-1; %k >= 0; %k--)
-			// {
-			// 	%f = getField(%str, %k);
-			// 	%s = getWord(%f, 0);
-			// 	%c = getWord(%f, 1);
-			// 	PokeDebug("   +--FINAL SPEED FOR" SPC %c @ ":" SPC %s, %this, %c);
-
-			// 	%this.executeAction(getWord(%f, 1));
-			// }
-		}
-
-		%this.priority[%i] = "";
+		%this.endTurn();
 	}
-
-	%this.runSchedules(%this.turn, 5);
-
-	%this.endTurn();
+	else if(!%this.haltTurn)
+		%this.executeTurn();
 }
 
 function PokemonBattle::setEffectSchedule(%this, %turn, %stage, %eff, %comb, %target)
@@ -724,4 +899,29 @@ function PokemonBattle::runSchedules(%this, %turn, %stage)
 		%j++;
 	}
 	return %j;
+}
+
+function PokemonBattle::checkForFainted(%this)
+{
+	%found = false;
+	for(%i = 0; %i < %this.combatants; %i++)
+	{
+		%comb = %this.combatant[%i];
+
+		%hp = %comb.getHP();
+		if(%hp <= 0)
+		{
+			%found = true;
+
+			%this.pushAction("FAINT" TAB %comb);
+
+			%this.commandToClientsExcept(%comb.owner, 'Pokemon_EnqueueAction', %this.turnActions, "REQUEST\t2");
+			if(isObject(%comb.owner))
+				commandToClient(%comb.owner, 'Pokemon_EnqueueAction', %this.turnActions, "REQUEST\t1");
+			%this.turnActions++;
+			
+			%this.setWaitingType(3);
+		}
+	}
+	return %found;
 }

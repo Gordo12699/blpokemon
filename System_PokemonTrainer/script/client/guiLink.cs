@@ -19,10 +19,12 @@ function PokemonMoveMouse::onMouseDown(%this, %mod, %pos, %click)
 	if(%slot == -1)
 		return;
 
-	%req = "MOVE" SPC %slot SPC PokemonClientBattle.getPokemonData(1, 0, "ID"); //just for now
-	commandToServer('Pokemon_SetAction', PokemonClientBattle.currentCombatant, %req);
+	// %req = "MOVE" SPC %slot SPC PokemonClientBattle.getPokemonData(1, 0, "ID"); //just for now
+	// commandToServer('Pokemon_SetAction', PokemonClientBattle.currentCombatant, %req);
 
-	PokemonGUI_SetMode(4);
+	// PokemonGUI_SetMode(4);
+
+	PokemonClientBattle.sendAction(PokemonClientBattle.currentCombatant, %slot);
 
 	PokeDebug("CLIENT MOVE PRESS -" SPC %slot SPC "PARAMS:" SPC %mod SPC %pos SPC %click);
 }

@@ -59,14 +59,14 @@ function clientCmdPokemon_SetPokemonMove(%side, %ind, %move, %name, %type, %pp, 
 	PokeDebug("GOT Pokemon_SetPokemonMove" SPC %side SPC %ind SPC %move SPC %name SPC %type SPC %pp SPC %ppmax);
 }
 
-function clientCmdPokemon_SetPartyPokemon(%i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax)
+function clientCmdPokemon_SetPartyPokemon(%i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax, %id)
 {
 	if(!isObject(PokemonClientBattle))
 		return;
 
-	PokemonClientBattle.setPartyPokemon(%i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax);
+	PokemonClientBattle.setPartyPokemon(%i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax, %id);
 
-	PokeDebug("GOT Pokemon_SetPartyPokemon" SPC %i SPC %name SPC %dex SPC %level SPC %gender SPC %shiny SPC %hpcurr SPC %hpmax);
+	PokeDebug("GOT Pokemon_SetPartyPokemon" SPC %i SPC %name SPC %dex SPC %level SPC %gender SPC %shiny SPC %hpcurr SPC %hpmax SPC %id);
 }
 
 function clientCmdPokemon_UpdateBattleDisplay()
@@ -150,6 +150,17 @@ function clientCmdPokemon_SetRequest(%type, %a0, %a1, %a2, %a3)
 			PokemonGUI_SetMode(0);
 			
 			PokemonClientBattle.setCurrentCombatant(%a0);
+
+		case 1: //request combatant
+			PokemonGUI_SetMode(3);
+			PokemonPartyBackButton.setVisible(false);
+			commandToServer('Pokemon_BattleReady', 3);
+
+			PokemonClientBattle.requestSwitch = true;
+
+		case 2: //request bounce-back for fainting
+			commandToServer('Pokemon_BattleReady', 3);
+
 	}
 }
 

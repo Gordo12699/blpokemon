@@ -4,6 +4,7 @@ $Pokemon::DialoguePattern::Fail = "But it failed!";
 $Pokemon::DialoguePattern::SuperEff = "It's super effective!";
 $Pokemon::DialoguePattern::NotEff = "It's not very effective...";
 $Pokemon::DialoguePattern::Crit = "A critical hit!";
+$Pokemon::DialoguePattern::Faint = "%1 fainted!";
 
 $Pokemon::ClientBattle::ActionQueuePeriod = 3000;
 
@@ -87,6 +88,7 @@ function PokemonClientBattle::resetPartyData(%this)
 		%ths.party[%i, "Shiny"] = false;
 		%this.party[%i, "HPCurr"] = 0;
 		%this.party[%i, "HPMax"] = 0;
+		%this.party[%i, "ID"] = 0;
 	}
 }
 
@@ -201,7 +203,7 @@ function PokemonClientBattle::setPokemonMove(%this, %side, %ind, %move, %name, %
 	%this.setPokemonData(%this, %ind, "MovePPMax_" @ %move, %ppmax);
 }
 
-function PokemonClientBattle::setPartyPokemon(%this, %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax)
+function PokemonClientBattle::setPartyPokemon(%this, %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax, %id)
 {
 	%i %= 6;
 
@@ -212,6 +214,7 @@ function PokemonClientBattle::setPartyPokemon(%this, %i, %name, %dex, %level, %g
 	%this.party[%i, "Shiny"] = %shiny;
 	%this.party[%i, "HPCurr"] = %hpcurr;
 	%this.party[%i, "HPMax"] = %hpmax;
+	%this.party[%i, "ID"] = %id;
 }
 
 function PokemonClientBattle::displayPokemonData(%this)
@@ -370,6 +373,25 @@ function PokemonClientBattle::processAction(%this, %action)
 			%this.displayPokemonData();
 
 			return 0.5;
+
+		case "PAUSE":
+			return 0;
+
+		case "REQUEST":
+			%reqType = getField(%params, 0);
+			for(%i = 0; %i < 4; %i++)
+				%r[%i] = getField(%params, %i+1);
+
+			clientCmdPokemon_SetRequest(%reqType, %r0, %r1, %r2, %r3);
+			return 0;
+
+		case "FAINT":
+			%user = %this.findPokemonByID(getField(%params, 0));
+			%side = getWord(%user, 0);
+			%ind = getWord(%user, 1);
+			%uname = %this.getPokemonData(%side, %ind, "Name");
+
+			PokemonBattleGui.setDialogue($Pokemon::DialoguePattern::Faint, %uname);
 	}
 	return 0;
 }
@@ -506,4 +528,20 @@ function PokemonClientBattle::setCurrentCombatant(%this, %comb)
 	%ind = getWord(%this.findPokemonByID(%this.currentCombatant), 1);
 
 	%this.displayMoveData(%ind);
+}
+
+function PokemonClientBattle::sendAction(%this, %type, %comb, %p0, %p1, %p2, %p3)
+{
+	switch(%type)
+	{
+		case 0:
+			%action = "MOVE" SPC %p0 SPC %this.getPokemonData(1, 0, "ID");
+
+		case 1:
+			%action = "SWITCH" SPC %p0;
+	}
+
+	commandToServer('Pokemon_SetAction', %comb, %action);
+
+	PokemonGUI_SetMode(4);
 }

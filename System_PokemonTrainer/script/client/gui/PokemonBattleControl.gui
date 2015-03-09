@@ -1063,7 +1063,7 @@ new GuiControl(PokemonBattleControl) {
                enabled = "1";
                visible = "1";
                clipToParent = "1";
-               command = "PokemonGUI_SetMode(3);";
+               command = "PokemonGUI_SetMode(3);PokemonPartyBackButton.setVisible(true);";
                text = " ";
                groupNum = "-1";
                buttonType = "PushButton";
@@ -3019,7 +3019,7 @@ new GuiControl(PokemonBattleControl) {
                   };
                };
             };
-            new GuiBitmapButtonCtrl() {
+            new GuiBitmapButtonCtrl(PokemonPartyBackButton) {
                profile = "GuiDefaultProfile";
                horizSizing = "right";
                vertSizing = "bottom";

@@ -304,6 +304,7 @@ function PokemonBattleGui::setMode(%this, %mode)
 		}
 	}
 
+	PokemonPartyBackButton.setVisible(true);
 
 	%this.currMode = (%gotOne ? %mode : -1);
 }

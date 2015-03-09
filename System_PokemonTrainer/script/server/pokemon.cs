@@ -221,17 +221,21 @@ function Pokemon::setStatsForLevel(%this, %level)
 		%this.stat[%type] = mFloor(%this.stat[%type]);
 	}
 
-	%this.statLevel = %level;
+	return %this.statLevel = %level;
 }
 
 function Pokemon::levelUp(%this)
 {
 	if((%lvl = %this.getStat("Level")) >= 100)
 		return;
+
 	if(%lvl < 1)
 		%lvl = 1;
 
-	%this.setStatsForLevel(%lvl + 1);
+	%l = %this.setStatsForLevel(%lvl + 1);
+	%this.statEXP = 0;
+
+	return %l;
 }
 
 function Pokemon::getStat(%this, %stat)

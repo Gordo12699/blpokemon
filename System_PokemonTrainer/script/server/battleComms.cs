@@ -126,6 +126,19 @@ function serverCmdPokemon_BattleReady(%this, %type)
 				%battle.schedule(250, updateClientDisplays);
 				%battle.schedule(500, startTurn);
 			}
+			
+		case 3:
+			if(%this.waitType != %type)
+				return;
+
+			%battle.waitingClients--;
+			%this.waitType = -1;
+
+			if(%battle.waitingClients == 0)
+			{
+				%battle.pushCombatants();
+				%battle.pushParties();
+			}
 	}
 }
 
@@ -227,7 +240,7 @@ function GameConnection::pushParty(%this, %trainer)
 		%hpcurr = %p.getStat("HP");
 		%hpmax = %p.getStat("MaxHP");
 
-		commandToClient(%this, 'Pokemon_SetPartyPokemon', %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax);
+		commandToClient(%this, 'Pokemon_SetPartyPokemon', %i, %name, %dex, %level, %gender, %shiny, %hpcurr, %hpmax, %p.getID());
 	}
 }
 
@@ -293,6 +306,19 @@ function PokemonBattle::commandToClients(%this, %cmd, %a0, %a1, %a2, %a3, %a4, %
 	}
 }
 
+function PokemonBattle::commandToClientsExcept(%this, %e, %cmd, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a10, %a11, %a12, %a13, %a14, %a15)
+{
+	%e = nameToID(%e);
+	%ct = getWordCount(%this.clients);
+	for(%i = 0; %i < %ct; %i++)
+	{
+		%cl = getWord(%this.clients, %i);
+		if(!isObject(%cl) || nameToID(%cl) == %e)
+			continue;
+		commandToClient(%cl, %cmd, %a0, %a1, %a2, %a3, %a4, %a5, %a6, %a7, %a8, %a9, %a10, %a11, %a12, %a13, %a14, %a15);
+	}
+}
+
 function PokemonBattle::setWaitingType(%this, %id)
 {
 	%this.waitingClients = 0;
@@ -329,4 +355,10 @@ function PokemonBattle::sendClientRequest(%this, %req)
 
 			%this.setWaitingType(2);
 	}
+}
+
+function PokemonBattle::pushAction(%this, %action)
+{
+	%this.commandToClients('Pokemon_EnqueueAction', %this.turnActions, %action);
+	%this.turnActions++;
 }
